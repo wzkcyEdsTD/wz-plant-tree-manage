@@ -1,4 +1,4 @@
-# wz-tree-adopt-manage
+# wz-plant-tree-manage
 
 ## Project setup
 ```
