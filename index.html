@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+	<meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <link rel="stylesheet" href="/dist/main.css">
+    <link rel="icon" href="./td_icon.ico" type="image/x-icon" />
+</head>
+
+<body>
+    <div id="app"></div>
+    <script type="text/javascript" src="/dist/vender-base.js"></script>
+    <script type="text/javascript" src="/dist/vender-exten.js"></script>
+    <script type="text/javascript" src="/dist/main.js"></script>
+</body>
+
+</html>
+
+<script>
+	//iview修复IE10及以下版本不支持dataset属性的问题，兼容transfer-dom.js中使用了dataset的问题
+	/*var isIE = function(){
+		return (window.navigator.userAgent.indexOf("MSIE")>=1);
+	}
+	if (isIE() && window.HTMLElement) {
+		if (Object.getOwnPropertyNames(HTMLElement.prototype).indexOf('dataset') === -1) {
+			Object.defineProperty(HTMLElement.prototype, 'dataset', {
+				get: function() {
+					var attributes = this.attributes;
+					var name = [],
+							value = [];
+					var obj = {};
+					for (var i = 0; i < attributes.length; i++) {
+						if (attributes[i].nodeName.slice(0, 5) == 'data-') {
+							name.push(attributes[i].nodeName.slice(5));
+							value.push(attributes[i].nodeValue);
+						}
+					}
+					for (var j = 0; j < name.length; j++) {
+						obj[name[j]] = value[j];
+					}
+					return obj;
+				}
+			});
+		}
+	}*/
+</script>
