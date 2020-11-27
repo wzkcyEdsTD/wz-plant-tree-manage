@@ -5,14 +5,10 @@
   "main": "index.js",
   "scripts": {
     "init": "webpack --progress --config build/webpack.dev.config.js",
-    "dev": "webpack-dev-server --content-base ./ --open --inline --hot --compress --config build/webpack.dev.config.js",
+    "dev": "webpack-dev-server --content-base ./ --inline --hot --compress --config build/webpack.dev.config.js",
     "build": "webpack --progress --hide-modules --config build/webpack.prod.config.js",
     "lint": "eslint --fix --ext .js,.vue src",
     "test": "npm run lint"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/iview/iview-admin.git"
   },
   "author": "Lison<zhigang.li@tendcloud.com>",
   "license": "MIT",
@@ -25,6 +21,7 @@
     "cropperjs": "^1.2.2",
     "easyscroll": "^1.0.1",
     "echarts": "^3.8.5",
+    "esri-loader": "2.9.2",
     "iview": "^2.8.0",
     "iview-area": "^1.5.14",
     "js-cookie": "^2.2.0",

@@ -7,9 +7,9 @@ const webpackBaseConfig = require('./webpack.base.config.js');
 const fs = require('fs');
 const package = require('../package.json');
 
-fs.open('./build/env.js', 'w', function(err, fd) {
+fs.open('./build/env.js', 'w', function (err, fd) {
     const buf = 'export default "development";';
-    fs.write(fd, buf, 0, buf.length, 0, function(err, written, buffer) {});
+    fs.write(fd, buf, 0, function (err, written, buffer) {});
 });
 
 module.exports = merge(webpackBaseConfig, {
@@ -46,35 +46,38 @@ module.exports = merge(webpackBaseConfig, {
             ]
         })
     ],
-	devServer: {
-		historyApiFallback: true,
-		contentBase: "./",
-		quiet: false, //控制台中不输出打包的信息
-		noInfo: false,
-		hot: true, //开启热点
-		inline: false, //开启页面自动刷新
-		lazy: false, //不启动懒加载
-		progress: true, //显示打包的进度
-		watchOptions: {
-			aggregateTimeout: 300
-		},
-		host:'0.0.0.0',
-		disableHostCheck:true,
-		port: '7031', //设置端口号
-		//代理
-		proxy: {
-			'/api/*': {
-				target: 'http://localhost:17070',
-				secure: false
-			},
-			'/pubApi/*': {
-				target: 'http://localhost:17070',
-				secure: false
-			},
-			'/upload/*':{
-				target: 'http://localhost:17070',
-				secure: false
-			}
-		}
-	}
+    devServer: {
+        historyApiFallback: true,
+        contentBase: "./",
+        quiet: false, //控制台中不输出打包的信息
+        noInfo: false,
+        hot: true, //开启热点
+        inline: false, //开启页面自动刷新
+        lazy: false, //不启动懒加载
+        progress: true, //显示打包的进度
+        watchOptions: {
+            aggregateTimeout: 300
+        },
+        host: '0.0.0.0',
+        disableHostCheck: true,
+        port: '7031', //设置端口号
+        //代理
+        proxy: {
+            '/api/*': {
+                target: 'http://9d3mkr.natappfree.cc',
+                changeOrigin: true,
+                secure: false
+            },
+            '/pubApi/*': {
+                target: 'http://9d3mkr.natappfree.cc',
+                changeOrigin: true,
+                secure: false
+            },
+            '/upload/*': {
+                target: 'http://9d3mkr.natappfree.cc',
+                changeOrigin: true,
+                secure: false
+            }
+        }
+    }
 });
