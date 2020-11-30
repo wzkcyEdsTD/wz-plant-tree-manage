@@ -64,17 +64,17 @@ module.exports = merge(webpackBaseConfig, {
         //代理
         proxy: {
             '/api/*': {
-                target: 'http://9d3mkr.natappfree.cc',
+                target: 'http://hcl.mynatapp.cc',
                 changeOrigin: true,
                 secure: false
             },
             '/pubApi/*': {
-                target: 'http://9d3mkr.natappfree.cc',
+                target: 'http://hcl.mynatapp.cc',
                 changeOrigin: true,
                 secure: false
             },
             '/upload/*': {
-                target: 'http://9d3mkr.natappfree.cc',
+                target: 'http://hcl.mynatapp.cc',
                 changeOrigin: true,
                 secure: false
             }

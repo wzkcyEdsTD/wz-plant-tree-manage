@@ -40,6 +40,8 @@
         show-sizer
         show-elevator
         show-total
+        placement="top"
+        transfer
       ></Page>
     </div>
 
@@ -101,7 +103,7 @@
               </Col>
               <Col :span="6">
                 <img
-                  :src="formItem.pic"
+                  :src="formItem.tree_pic"
                   style="
                     max-width: 95%;
                     max-height: 100px;
@@ -241,9 +243,9 @@ export default {
           align: "center",
         },
         {
-          title: "编号",
-          key: "id",
-          width: 70,
+          title: "序号",
+          type: "index",
+          width: 80,
         },
         {
           title: "名称",
@@ -255,6 +257,18 @@ export default {
           width: 70,
           render: (h, params) => {
             return h("span", params.row.state == "1" ? "上架" : "下架");
+          },
+        },
+        {
+          title: "图片",
+          width: 140,
+          render: (h, params) => {
+            return h("img", {
+              attrs: {
+                src: params.row.tree_pic,
+                style: "width: 100px; height: 100px;",
+              },
+            });
           },
         },
         {
@@ -309,6 +323,18 @@ export default {
           width: 120,
         },
         {
+          title: "创建时间",
+          width: 180,
+          render: (h, params) => {
+            return h(
+              "span",
+              params.row.create_date
+                ? new Date(params.row.create_date).Format("yyyy-MM-dd hh:mm:ss")
+                : ""
+            );
+          },
+        },
+        {
           title: "修改时间",
           width: 180,
           render: (h, params) => {
@@ -316,8 +342,6 @@ export default {
               "span",
               params.row.update_date
                 ? new Date(params.row.update_date).Format("yyyy-MM-dd hh:mm:ss")
-                : params.row.create_date
-                ? new Date(params.row.create_date).Format("yyyy-MM-dd hh:mm:ss")
                 : ""
             );
           },
@@ -542,7 +566,7 @@ export default {
     //图片选择
     chooseUpdate(arr) {
       this.uploadShow = false;
-      this.formItem.pic = "/" + arr[0].path;
+      this.formItem.tree_pic = "/" + arr[0].path;
     },
     closeImageModal(val) {
       this.uploadShow = val;

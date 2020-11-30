@@ -37,23 +37,10 @@
         show-sizer
         show-elevator
         show-total
+        placement="top"
+        transfer
       ></Page>
     </div>
-
-    <!-- 查看详情Modal -->
-    <Modal v-model="describeModal.show" width="700" :mask-closable="false">
-      <p slot="header" style="text-align: center">
-        <span>简介</span>
-      </p>
-      <div style="padding: 10px; font-size: 16px">
-        {{ describeModal.content }}
-      </div>
-      <Row slot="footer">
-        <Button type="info" size="large" @click="describeModal.show = false"
-          >确定</Button
-        >
-      </Row>
-    </Modal>
 
     <!-- 自定义Modal -->
     <Modal v-model="modal.show" width="1100" :mask-closable="false">
@@ -65,81 +52,23 @@
         <Form :model="formItem" :label-width="80">
           <Row>
             <Col :span="12">
-              <FormItem label="树种名称">
-                <Input
-                  v-model="formItem.tree_name"
-                  placeholder="请输入名称"
-                ></Input>
-              </FormItem>
-            </Col>
-            <Col :span="12">
-              <FormItem label="学名">
-                <Input
-                  v-model="formItem.tree_sci_name"
-                  placeholder="请输入学名"
-                ></Input>
+              <FormItem label="订单编号">
+                <span>{{ formItem.order_num }}</span>
               </FormItem>
             </Col>
           </Row>
-          <!--<FormItem label="状态">
-						<RadioGroup v-model="formItem.status">
-							<Radio :label=0>显示</Radio>
-							<Radio :label=1>隐藏</Radio>
-						</RadioGroup>
-					</FormItem>-->
-          <FormItem label="树木图片">
-            <Row>
-              <Col :span="18">
-                <Input
-                  v-model="formItem.tree_pic"
-                  placeholder="输入图片链接地址"
-                >
-                  <Button
-                    slot="append"
-                    icon="upload"
-                    @click.native="uploadShow = true"
-                    >选择或上传</Button
-                  >
-                </Input>
-              </Col>
-              <Col :span="6">
-                <img
-                  :src="formItem.pic"
-                  style="
-                    max-width: 95%;
-                    max-height: 100px;
-                    background: transparent !important;
-                  "
-                />
-              </Col>
-            </Row>
-          </FormItem>
           <Row>
             <Col :span="9">
-              <FormItem label="树木类型">
-                <RadioGroup v-model="formItem.tree_type" type="button">
-                  <Radio label="1">爱情树</Radio>
-                  <Radio label="2">友情树</Radio>
-                  <Radio label="3">亲情树</Radio>
-                  <Radio label="4">学习树</Radio>
-                </RadioGroup>
+              <FormItem label="用户昵称">
+                <span>{{ formItem.nickname }}</span>
               </FormItem>
             </Col>
-            <Col :span="5">
-              <Input
-                v-model="formItem.tree_type"
-                placeholder="自定义类别"
-              ></Input>
+            <Col :span="9">
+              <FormItem label="手机号">
+                <span>{{ formItem.phone }}</span>
+              </FormItem>
             </Col>
           </Row>
-          <FormItem label="树木简介">
-            <Input
-              type="textarea"
-              :rows="5"
-              v-model="formItem.tree_describe"
-              placeholder="请输入内容"
-            ></Input>
-          </FormItem>
           <Row>
             <Col :span="5">
               <FormItem label="树苗价格">
@@ -188,10 +117,7 @@
       </div>
       <Row slot="footer">
         <Button type="info" size="large" @click="update()"
-          >立即保存并添加</Button
-        >
-        <Button type="ghost" size="large" @click="modal.show = false"
-          >取消</Button
+          >确定</Button
         >
       </Row>
     </Modal>
@@ -242,6 +168,11 @@ export default {
           align: "center",
         },
         {
+          title: "序号",
+          type: "index",
+          width: 80,
+        },
+        {
           title: "订单编号",
           key: "order_num",
           width: 150,
@@ -273,9 +204,9 @@ export default {
             return h(
               "span",
               params.row.state == "0"
-                ? "待支付"
-                : params.row.state == "1"
                 ? "已付款"
+                : params.row.state == "1"
+                ? "待支付"
                 : "已退款"
             );
           },
@@ -311,24 +242,24 @@ export default {
           key: "action",
           render: (h, params) => {
             return h("div", [
-              // h(
-              //   "Button",
-              //   {
-              //     props: {
-              //       type: "primary",
-              //       size: "small",
-              //     },
-              //     style: {
-              //       marginRight: "10px",
-              //     },
-              //     on: {
-              //       click: () => {
-              //         this.edit(params);
-              //       },
-              //     },
-              //   },
-              //   "编辑"
-              // ),
+              h(
+                "Button",
+                {
+                  props: {
+                    type: "primary",
+                    size: "small",
+                  },
+                  style: {
+                    marginRight: "10px",
+                  },
+                  on: {
+                    click: () => {
+                      this.edit(params);
+                    },
+                  },
+                },
+                "查看"
+              ),
               h(
                 "Button",
                 {
@@ -440,19 +371,20 @@ export default {
     //保存
     update() {
       const self = this;
-      if (!this.formItem.state) {
-        this.formItem["state"] = "1";
-      }
-      Util.ajax
-        .post(this.apiUrlPrefix + "update", this.formItem)
-        .then(function (response) {
-          if (response.data.code == "100") {
-            self.init();
-            self.modal.show = false;
-          } else {
-            alert(response.data.msg);
-          }
-        });
+      self.modal.show = false;
+      // if (!this.formItem.state) {
+      //   this.formItem["state"] = "1";
+      // }
+      // Util.ajax
+      //   .post(this.apiUrlPrefix + "update", this.formItem)
+      //   .then(function (response) {
+      //     if (response.data.code == "100") {
+      //       self.init();
+      //       self.modal.show = false;
+      //     } else {
+      //       alert(response.data.msg);
+      //     }
+      //   });
     },
     delete(params) {
       const self = this;

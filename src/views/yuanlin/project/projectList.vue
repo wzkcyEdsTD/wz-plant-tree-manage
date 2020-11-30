@@ -78,8 +78,8 @@
           </Row>
           <FormItem label="项目封面">
             <Row>
-              <Col :span="5">
-                <!-- <Input
+              <Col :span="18">
+                <Input
                   v-model="formItem.project_cover"
                   placeholder="输入图片链接地址"
                 >
@@ -89,14 +89,11 @@
                     @click.native="uploadShow = true"
                     >选择或上传</Button
                   >
-                </Input> -->
-                <Button icon="upload" @click.native="uploadShow = true"
-                  >选择或上传</Button
-                >
+                </Input>
               </Col>
               <Col :span="6">
                 <img
-                  :src="formItem.pic"
+                  :src="formItem.project_cover"
                   style="
                     max-width: 95%;
                     max-height: 100px;
@@ -322,9 +319,9 @@ export default {
           align: "center",
         },
         {
-          title: "项目编号",
-          key: "id",
-          width: 100,
+          title: "序号",
+          type: "index",
+          width: 80,
         },
         {
           title: "项目名称",
@@ -333,8 +330,15 @@ export default {
         },
         {
           title: "封面",
-          key: "project_cover",
-          width: 120,
+          width: 140,
+          render: (h, params) => {
+            return h("img", {
+              attrs: {
+                src: params.row.project_cover,
+                style: "width: 100px; height: 100px;",
+              },
+            });
+          },
         },
         {
           title: "业主单位",
@@ -610,6 +614,7 @@ export default {
               ).Format("yyyy-MM-dd"));
 
             self.formItem.tree_num &&
+              self.treeIdMap[self.formItem.tree_num] &&
               (self.checkTreeType =
                 self.treeIdMap[self.formItem.tree_num].type);
 
@@ -676,10 +681,10 @@ export default {
             new Date(this.maintainDeadlineDate)
           ));
 
-        // 删除name属性
+        // 删除不需要传的属性
         const form = {};
         for (let k in this.formItem) {
-          if (!~["name", "_index", "_rowKey"].indexOf(k)) {
+          if (!~["name", "tree_name", "_index", "_rowKey"].indexOf(k)) {
             form[k] = this.formItem[k];
           }
         }
@@ -758,7 +763,7 @@ export default {
     //图片选择
     chooseUpdate(arr) {
       this.uploadShow = false;
-      this.formItem.pic = "/" + arr[0].path;
+      this.formItem.project_cover = "/" + arr[0].path;
     },
     closeImageModal(val) {
       this.uploadShow = val;
