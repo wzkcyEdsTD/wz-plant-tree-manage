@@ -261,12 +261,13 @@ export default {
         },
         {
           title: "图片",
-          width: 140,
+          width: 160,
+          align: "center",
           render: (h, params) => {
             return h("img", {
               attrs: {
                 src: params.row.tree_pic,
-                style: "width: 100px; height: 100px;",
+                style: "width: 120px;",
               },
             });
           },

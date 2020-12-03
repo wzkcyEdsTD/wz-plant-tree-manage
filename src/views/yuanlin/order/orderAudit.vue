@@ -75,100 +75,21 @@
             </Col>
           </Row>
           <Row>
-            <Col :span="6">
-              <FormItem label="订单金额">
-                <span>{{ formItem.amount }}</span>
-              </FormItem>
-            </Col>
-            <Col :span="6">
-              <FormItem label="订单状态">
-                <span>{{
-                  formItem.state == "0"
-                    ? "已付款"
-                    : formItem.state == "1"
-                    ? "待支付"
-                    : "已退款"
-                }}</span>
-              </FormItem>
-            </Col>
-            <Col :span="6">
-              <FormItem label="现场种植">
-                <span>{{ formItem.attending_flg == "0" ? "是" : "否" }}</span>
-              </FormItem>
-            </Col>
-            <Col :span="6">
-              <FormItem label="提交时间">
-                <span>{{
-                  formItem.createtime
-                    ? new Date(formItem.createtime).Format(
-                        "yyyy-MM-dd hh:mm:ss"
-                      )
-                    : `-`
-                }}</span>
-              </FormItem>
-            </Col>
-          </Row>
-          <Row>
             <Col :span="12">
               <FormItem label="认养寄语">
-                <span>{{ formItem.wishes || `无` }}</span>
+                <Input
+                  v-model="editWishes"
+                  placeholder="若需要修改，请输入"
+                ></Input>
               </FormItem>
             </Col>
           </Row>
-          <Row>
-            <Col :span="5">
-              <FormItem label="树木详情">
-                <span
-                  v-if="
-                    !(formItem.yOrderTreeList && formItem.yOrderTreeList.length)
-                  "
-                  >无</span
-                >
-              </FormItem>
-            </Col>
-          </Row>
-          <template
-            v-if="formItem.yOrderTreeList && formItem.yOrderTreeList.length"
-          >
-            <Row
-              v-for="(item, index) in formItem.yOrderTreeList"
-              :key="index"
-              style="border: solid 1px #dddee1"
-            >
-              <Col :span="8">
-                <FormItem label="项目名称">
-                  <span>{{ item.project_name }}</span>
-                </FormItem>
-              </Col>
-              <Col :span="8">
-                <FormItem label="树木名称"
-                  ><span>{{ item.tree_name }}</span>
-                </FormItem>
-              </Col>
-              <Col :span="8">
-                <FormItem label="树苗费用">
-                  <span>{{ item.sapling_price }}</span>
-                </FormItem>
-              </Col>
-              <Col :span="8">
-                <FormItem label="树木图片">
-                  <img
-                    :src="item.tree_pic"
-                    style="
-                      max-width: 95%;
-                      max-height: 100px;
-                      background: transparent !important;
-                    "
-                  />
-                </FormItem>
-              </Col>
-            </Row>
-          </template>
         </Form>
       </div>
       <Row slot="footer">
-        <Button type="info" size="large" @click="modal.show = false"
-          >确定</Button
+        <Button type="info" size="large" @click="update()">确定</Button
+        ><Button type="ghost" size="large" @click="modal.show = false"
+          >取消</Button
         >
       </Row>
     </Modal>
@@ -244,47 +165,30 @@ export default {
           width: 120,
         },
         {
-          title: "订单金额",
-          key: "amount",
-          width: 100,
-        },
-        {
-          title: "订单状态",
-          width: 100,
+          title: "审核状态",
+          width: 120,
           render: (h, params) => {
-            return h(
-              "span",
-              params.row.state == "0"
-                ? "已付款"
-                : params.row.state == "1"
-                ? "待支付"
-                : "已退款"
-            );
-          },
-        },
-        {
-          title: "提交时间",
-          width: 150,
-          render: (h, params) => {
-            return h(
-              "span",
-              params.row.createtime
-                ? new Date(params.row.createtime).Format("yyyy-MM-dd hh:mm:ss")
-                : ""
-            );
-          },
-        },
-        {
-          title: "现场种植",
-          width: 100,
-          render: (h, params) => {
-            return h("span", params.row.attending_flg == "0" ? "是" : "否");
+            let val = "未审核";
+            let props = {
+              color: "yellow",
+            };
+            if (params.row.wishes_status == 1) {
+              val = "通过";
+              props.color = "green";
+            } else if (params.row.wishes_status == 2) {
+              val = "不通过";
+              props.color = "red";
+            } else if (params.row.wishes_status == 3) {
+              val = "修正后通过";
+              props.color = "blue";
+            }
+            return h("Tag", { props: props }, val);
           },
         },
         {
           title: "认种认养寄语",
           key: "wishes",
-          width: 150,
+          width: 180,
         },
         {
           title: "操作",
@@ -309,7 +213,25 @@ export default {
                     },
                   },
                 },
-                "查看"
+                "编辑"
+              ),
+              h(
+                "Button",
+                {
+                  props: {
+                    type: "success",
+                    size: "small",
+                  },
+                  style: {
+                    marginRight: "10px",
+                  },
+                  on: {
+                    click: () => {
+                      this.audit(1, params);
+                    },
+                  },
+                },
+                "通过"
               ),
               h(
                 "Button",
@@ -320,11 +242,11 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.changeState(params);
+                      this.audit(2, params);
                     },
                   },
                 },
-                "退款"
+                "驳回"
               ),
             ]);
           },
@@ -333,6 +255,7 @@ export default {
       data1: [], //表格数据
       tableSelect: [], //表格选中项
       loading: true, //表格加载
+      editWishes: "",
     };
   },
   methods: {
@@ -377,39 +300,51 @@ export default {
       self.describeModal.content = params.row.tree_describe;
     },
 
-    // 改变审核状态
-    changeState(params) {
+    // 审核
+    audit(auditState, params) {
       const self = this;
-      const formItem = params.row;
+      if (auditState == params.row.wishes_status) {
+        if (auditState == 1) {
+          this.$Message.error("您已经审核通过该项！");
+        } else {
+          this.$Message.error("您已经驳回该项！");
+        }
+        return;
+      } else if (auditState == 1 && params.row.wishes_status == 3) {
+        this.$Message.error("您已经审核通过该项！");
+        return;
+      }
+
       this.$Modal.confirm({
         onOk() {
-          if (formItem.state && formItem.state == "1") {
-            formItem.state = "2";
-            Util.ajax
-              .post(this.apiUrlPrefix + "update", formItem)
-              .then(function (response) {
-                if (response.data.code == "100") {
-                  self.init();
-                  self.modal.show = false;
-                } else {
-                  alert(response.data.msg);
-                }
-              });
-          }
+          Util.ajax
+            .post(self.apiUrlPrefix + "update", {
+              id: params.row.id,
+              wishes_status: auditState,
+            })
+            .then(function (response) {
+              if (response.data.code == "100") {
+                self.init();
+              } else {
+                self.$Message.error(response.data.msg);
+              }
+            });
         },
-        content: `您确定要退款吗？`,
+        content: `您确定要${auditState == 1 ? `通过` : `驳回`}该项吗？`,
       });
     },
 
     //编辑
     edit(params) {
       const self = this;
+      self.editWishes = "";
       Util.ajax
         .post(this.apiUrlPrefix + "info?id=" + params.row.id)
         .then(function (response) {
           if (response.data.code == "100") {
             self.clearFormItem();
             self.formItem = response.data.formItem;
+            self.formItem.wishes && (self.editWishes = self.formItem.wishes);
             self.modal.show = true;
             self.modal.isadd = false;
           } else {
@@ -418,6 +353,30 @@ export default {
         });
     },
 
+    //保存
+    update() {
+      const self = this;
+      self.modal.show = false;
+
+      if (self.editWishes != self.formItem.wishes) {
+        self.$Modal.confirm({
+          onOk() {
+            Util.ajax
+              .post(self.apiUrlPrefix + "update", {
+                id: self.formItem.id,
+                wishes: self.editWishes,
+                wishes_status: 3,
+              })
+              .then((response) => {
+                if (response.data.code == "100") {
+                  self.init();
+                }
+              });
+          },
+          content: "您确定要修改寄语并通过吗？",
+        });
+      }
+    },
     delete(params) {
       const self = this;
       this.$Modal.confirm({

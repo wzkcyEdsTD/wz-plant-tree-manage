@@ -98,6 +98,14 @@ export const appRouter = [
 			component: resolve => {
 				require(['@/views/yuanlin/order/orderList.vue'], resolve);
 			}
+		}, {
+			path: 'orderAudit',
+			icon: 'image',
+			name: 'orderAudit',
+			title: '订单审核',
+			component: resolve => {
+				require(['@/views/yuanlin/order/orderAudit.vue'], resolve);
+			}
 		}]
 	},
 
@@ -115,6 +123,24 @@ export const appRouter = [
 			title: '树木列表',
 			component: resolve => {
 				require(['@/views/yuanlin/tree/treeList.vue'], resolve);
+			}
+		}]
+	},
+
+	// 养护管理
+	{
+		path: '/maintain',
+		icon: 'ios-paper',
+		title: '养护管理',
+		name: 'maintain',
+		component: Main,
+		children: [{
+			path: 'maintainList',
+			icon: 'image',
+			name: 'maintainList',
+			title: '养护记录',
+			component: resolve => {
+				require(['@/views/yuanlin/maintain/maintainList.vue'], resolve);
 			}
 		}]
 	},

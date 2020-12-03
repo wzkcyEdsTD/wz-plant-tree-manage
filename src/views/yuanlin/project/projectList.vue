@@ -40,16 +40,217 @@
         show-sizer
         show-elevator
         show-total
+        placement="top"
+        transfer
       ></Page>
     </div>
 
     <!-- 查看详情Modal -->
-    <Modal v-model="describeModal.show" width="700" :mask-closable="false">
+    <Modal v-model="describeModal.show" width="1100" :mask-closable="false">
       <p slot="header" style="text-align: center">
-        <span>简介</span>
+        <span>详情</span>
       </p>
-      <div style="padding: 10px; font-size: 16px">
-        {{ describeModal.content }}
+      <div>
+        <Form :model="formItem" :label-width="80">
+          <Row>
+            <Col :span="8">
+              <FormItem label="封面">
+                <img
+                  :src="formItem.project_cover"
+                  style="
+                    max-width: 95%;
+                    max-height: 100px;
+                    background: transparent !important;
+                  "
+                />
+              </FormItem>
+            </Col>
+            <Col :span="8">
+              <FormItem label="项目名称">
+                <span>{{ formItem.project_name }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="8">
+              <FormItem label="项目状态">
+                <span>{{
+                  formItem.state == "0"
+                    ? "未上架"
+                    : formItem.state == "1"
+                    ? "预约上架"
+                    : formItem.state == "2"
+                    ? "筹款中"
+                    : formItem.state == "3"
+                    ? "养护中"
+                    : formItem.state == "99"
+                    ? "已结束"
+                    : "无"
+                }}</span>
+              </FormItem>
+            </Col>
+          </Row>
+          <Row>
+            <Col :span="24">
+              <FormItem label="项目介绍">
+                <span>{{
+                  formItem.description
+                    ? formItem.description.replace("↵", "")
+                    : "无"
+                }}</span>
+              </FormItem>
+            </Col>
+          </Row>
+          <Row>
+            <Col :span="6">
+              <FormItem label="创建时间">
+                <span>{{
+                  formItem.createtime
+                    ? new Date(formItem.createtime).Format(
+                        "yyyy-MM-dd hh:mm:ss"
+                      )
+                    : "无"
+                }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="6">
+              <FormItem label="发布时间">
+                <span>{{
+                  formItem.publish_date
+                    ? new Date(formItem.publish_date).Format(
+                        "yyyy-MM-dd hh:mm:ss"
+                      )
+                    : "无"
+                }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="6">
+              <FormItem label="筹款截止">
+                <span>{{
+                  formItem.funding_deadline
+                    ? new Date(formItem.funding_deadline).Format(
+                        "yyyy-MM-dd hh:mm:ss"
+                      )
+                    : "无"
+                }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="6">
+              <FormItem label="养护截止">
+                <span>{{
+                  formItem.maintain_deadline
+                    ? new Date(formItem.maintain_deadline).Format(
+                        "yyyy-MM-dd hh:mm:ss"
+                      )
+                    : "无"
+                }}</span>
+              </FormItem>
+            </Col>
+          </Row>
+          <Row>
+            <Col :span="6">
+              <FormItem label="树种类型">
+                <span>{{
+                  formItem.tree_num && treeIdMap[formItem.tree_num]
+                    ? treeIdMap[formItem.tree_num].type
+                    : "无"
+                }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="6">
+              <FormItem label="树种名称">
+                <span>{{
+                  formItem.tree_num && treeIdMap[formItem.tree_num]
+                    ? treeIdMap[formItem.tree_num].name
+                    : "无"
+                }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="6">
+              <FormItem label="上架数量">
+                <span>{{ formItem.project_scale || 0 }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="6">
+              <FormItem label="单价">
+                <span>{{ formItem.sales || 0 }}</span>
+              </FormItem>
+            </Col>
+          </Row>
+          <Row>
+            <Col :span="6">
+              <FormItem label="认养总数">
+                <span>{{ formItem.rzryzs || 0 }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="6">
+              <FormItem label="已认种数">
+                <span>{{ formItem.yrzs || 0 }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="6">
+              <FormItem label="最大认养数">
+                <span>{{ formItem.zdrys || 0 }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="6">
+              <FormItem label="认养用户数">
+                <span>{{ formItem.yhzs || 0 }}</span>
+              </FormItem>
+            </Col>
+          </Row>
+          <Row>
+            <Col :span="12">
+              <FormItem label="全景链接">
+                <a
+                  v-if="formItem.ar_url"
+                  :href="formItem.ar_url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{ formItem.ar_url }}</a
+                >
+                <span v-else>无</span>
+              </FormItem>
+            </Col>
+            <Col :span="12">
+              <FormItem label="公益牌状态">
+                <span>{{
+                  formItem.nameplate_state == "0"
+                    ? "未制作"
+                    : formItem.nameplate_state == "1"
+                    ? "已制作"
+                    : formItem.nameplate_state == "2"
+                    ? "已解挂"
+                    : "无"
+                }}</span>
+              </FormItem>
+            </Col>
+          </Row>
+          <Row>
+            <Col :span="12">
+              <FormItem label="地理位置">
+                <a
+                  v-if="formItem.ar_url"
+                  :href="formItem.ar_url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >查看项目地理位置</a
+                >
+                <span v-else>无</span>
+              </FormItem>
+            </Col>
+            <Col :span="12">
+              <FormItem label="分布图">
+                <a
+                  v-if="formItem.ar_url"
+                  :href="formItem.ar_url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >查看树-公益牌分布图</a
+                >
+                <span v-else>无</span>
+              </FormItem>
+            </Col>
+          </Row>
+        </Form>
       </div>
       <Row slot="footer">
         <Button type="info" size="large" @click="describeModal.show = false"
@@ -104,7 +305,7 @@
             </Row>
           </FormItem>
           <Row>
-            <Col :span="5">
+            <Col :span="8">
               <FormItem label="项目状态">
                 <div style="display: flex; align-items: center">
                   <span style="padding-right: 10px">立即上架</span>
@@ -112,20 +313,19 @@
                 </div>
               </FormItem>
             </Col>
-            <Col :span="7">
-              <div style="display: flex; align-items: center">
-                <span style="padding-right: 10px">预约上架</span>
+            <Col :span="8">
+              <FormItem label="预约上架">
                 <DatePicker
                   type="date"
                   placeholder="选择预约上架日期"
                   style="width: 180px"
                   :options="publishOptions"
                   v-model="publishDate"
-                ></DatePicker></div
+                ></DatePicker></FormItem
             ></Col>
           </Row>
           <Row>
-            <Col :span="6">
+            <Col :span="8">
               <FormItem label="筹款截止">
                 <DatePicker
                   type="date"
@@ -138,7 +338,7 @@
                 ></DatePicker>
               </FormItem>
             </Col>
-            <Col :span="6">
+            <Col :span="8">
               <FormItem label="养护截止">
                 <DatePicker
                   type="date"
@@ -301,7 +501,6 @@ export default {
       },
       describeModal: {
         show: false,
-        content: "",
       },
       page: {
         pageSize: 10,
@@ -330,12 +529,13 @@ export default {
         },
         {
           title: "封面",
-          width: 140,
+          width: 160,
+          align: "center",
           render: (h, params) => {
             return h("img", {
               attrs: {
                 src: params.row.project_cover,
-                style: "width: 100px; height: 100px;",
+                style: "width: 120px;",
               },
             });
           },
@@ -351,8 +551,15 @@ export default {
           width: 110,
         },
         {
+          title: "养护周期",
+          key: "maintenance_period",
+          width: 100,
+          align: "center",
+        },
+        {
           title: "认种认养量",
           width: 100,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -378,14 +585,16 @@ export default {
                 ? "养护中"
                 : params.row.state == "99"
                 ? "已结束"
-                : ""
+                : "无"
             );
           },
         },
         {
           title: "累计筹款",
-          key: "salesquantity",
           width: 100,
+          render: (h, params) => {
+            return h("span", params.row.salesquantity || 0);
+          },
         },
         {
           title: "公益牌状态",
@@ -399,7 +608,7 @@ export default {
                 ? "已制作"
                 : params.row.nameplate_state == "2"
                 ? "已解挂"
-                : ""
+                : "无"
             );
           },
         },
@@ -442,10 +651,28 @@ export default {
         {
           title: "操作",
           fixed: "right",
-          minWidth: 150,
+          minWidth: 200,
           key: "action",
           render: (h, params) => {
             return h("div", [
+              h(
+                "Button",
+                {
+                  props: {
+                    type: "success",
+                    size: "small",
+                  },
+                  style: {
+                    marginRight: "10px",
+                  },
+                  on: {
+                    click: () => {
+                      this.check(params);
+                    },
+                  },
+                },
+                "查看"
+              ),
               h(
                 "Button",
                 {
@@ -546,8 +773,51 @@ export default {
     // 查看
     check(params) {
       const self = this;
-      self.describeModal.show = true;
-      self.describeModal.content = params.row.tree_describe;
+      Util.ajax
+        .post(this.apiUrlPrefix + "info/" + params.row.id)
+        .then(function (response) {
+          if (response.data.code == "100") {
+            self.clearFormItem();
+            self.formItem = response.data.formItem;
+
+            self.fundingDeadlineDate = "";
+            self.maintainDeadlineDate = "";
+
+            self.formItem.funding_deadline &&
+              (self.fundingDeadlineDate = new Date(
+                self.formItem.funding_deadline
+              ).Format("yyyy-MM-dd"));
+
+            self.formItem.maintain_deadline &&
+              (self.maintainDeadlineDate = new Date(
+                self.formItem.maintain_deadline
+              ).Format("yyyy-MM-dd"));
+
+            self.formItem.tree_num &&
+              self.treeIdMap[self.formItem.tree_num] &&
+              (self.checkTreeType =
+                self.treeIdMap[self.formItem.tree_num].type);
+
+            if (self.formItem.centerx && self.formItem.centery) {
+              const numX = Number(self.formItem.centerx);
+              const numY = Number(self.formItem.centery);
+              if (!isNaN(numX) && !isNaN(numY)) {
+                const center = [numX, numY];
+                self.checkPoint = {
+                  x: numX,
+                  y: numY,
+                };
+                // self.initMap({ center });
+              } else {
+                // self.initMap();
+              }
+            }
+
+            self.describeModal.show = true;
+          } else {
+            alert(response.data.msg);
+          }
+        });
     },
 
     // 改变上架、下架状态
@@ -684,7 +954,19 @@ export default {
         // 删除不需要传的属性
         const form = {};
         for (let k in this.formItem) {
-          if (!~["name", "tree_name", "_index", "_rowKey"].indexOf(k)) {
+          if (
+            !~[
+              "name",
+              "tree_name",
+              "rzryzs",
+              "sales",
+              "yhzs",
+              "yrzs",
+              "zdrys",
+              "_index",
+              "_rowKey",
+            ].indexOf(k)
+          ) {
             form[k] = this.formItem[k];
           }
         }

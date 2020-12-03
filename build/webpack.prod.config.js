@@ -75,10 +75,10 @@ module.exports = merge(webpackBaseConfig, {
         }),
         new HtmlWebpackPlugin({
             title: '后台管理',
-            favicon: './td_icon.ico',
+            favicon: path.resolve('./td_icon.ico'),
             filename: '../index.html',
             template: '!!ejs-loader!./src/template/index.ejs',
-            inject: false
+            inject: true
         })
     ]
 });
