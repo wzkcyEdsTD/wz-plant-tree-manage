@@ -1,5 +1,5 @@
 import axios from 'axios';
-//import env from '../../build/env';
+import env from '../../build/env';
 //import semver from 'semver';
 //import packjson from '../../package.json';
 import store from '../store';
@@ -30,7 +30,7 @@ util.ajax = axios.create({
 //请求拦截器
 util.ajax.interceptors.request.use(
     config => {
-        if (store.getters.token) {  // 判断是否存在token，如果存在的话加上
+        if (store.getters.token) { // 判断是否存在token，如果存在的话加上
             config.headers.token = store.state.user.token;
         }
         return config;
@@ -42,16 +42,17 @@ util.ajax.interceptors.request.use(
 util.logout = function () {
     store.commit('logout');
     store.commit('appLogout');
-    location.href='/dist/#/login';
+    // 判断环境跳转
+    location.href = (env === 'development') ? '/#/login' : '/dist/#/login';
     //location.reload();
 };
 
 //添加响应拦截器
 util.ajax.interceptors.response.use(function (response) {
-    if(response.data && response.data.code==-1){
+    if (response.data && response.data.code == -1) {
         //未登录
         util.logout();
-    }else{
+    } else {
         return response;
     }
 }, function (error) {
@@ -93,7 +94,7 @@ util.getRouterObjByName = function (routers, name) {
                     routerObj = item.children[i];
                 }
             });
-        } else if(item.children!==undefined){
+        } else if (item.children !== undefined) {
             if (item.children.length === 1) {
                 if (item.children[0].name === name) {
                     routerObj = item.children[0];
@@ -105,7 +106,7 @@ util.getRouterObjByName = function (routers, name) {
                     }
                 });
             }
-        }else{
+        } else {
             if (item.name === name) {
                 routerObj = item;
             }
@@ -142,16 +143,13 @@ util.setCurrentPath = function (vm, name) {
     });
     let currentPathArr = [];
     if (name === 'home_index') {
-        currentPathArr = [
-            {
-                title: util.handleTitle(vm, util.getRouterObjByName(vm.$store.state.app.routers, 'home_index')),
-                path: '',
-                name: 'home_index'
-            }
-        ];
+        currentPathArr = [{
+            title: util.handleTitle(vm, util.getRouterObjByName(vm.$store.state.app.routers, 'home_index')),
+            path: '',
+            name: 'home_index'
+        }];
     } else if ((name.indexOf('_index') >= 0 || isOtherRouter) && name !== 'home_index') {
-        currentPathArr = [
-            {
+        currentPathArr = [{
                 title: util.handleTitle(vm, util.getRouterObjByName(vm.$store.state.app.routers, 'home_index')),
                 path: '/home',
                 name: 'home_index'
@@ -180,16 +178,13 @@ util.setCurrentPath = function (vm, name) {
             }
         })[0];
         if (currentPathObj.children.length <= 1 && currentPathObj.name === 'home') {
-            currentPathArr = [
-                {
-                    title: '首页',
-                    path: '',
-                    name: 'home_index'
-                }
-            ];
+            currentPathArr = [{
+                title: '首页',
+                path: '',
+                name: 'home_index'
+            }];
         } else if (currentPathObj.children.length <= 1 && currentPathObj.name !== 'home') {
-            currentPathArr = [
-                {
+            currentPathArr = [{
                     title: '首页',
                     path: '/home',
                     name: 'home_index'
@@ -204,8 +199,7 @@ util.setCurrentPath = function (vm, name) {
             let childObj = currentPathObj.children.filter((child) => {
                 return child.name === name;
             })[0];
-            currentPathArr = [
-                {
+            currentPathArr = [{
                     title: '首页',
                     path: '/home',
                     name: 'home_index'
@@ -234,7 +228,7 @@ util.openNewPage = function (vm, name, argu, query) {
     let i = 0;
     let tagHasOpened = false;
     while (i < openedPageLen) {
-        if (name === pageOpenedList[i].name) {  // 页面已经打开
+        if (name === pageOpenedList[i].name) { // 页面已经打开
             vm.$store.commit('pageOpenedList', {
                 index: i,
                 argu: argu,
@@ -315,32 +309,34 @@ Date.prototype.Format = function (fmt) {
  * @param dateString
  * @returns {*}
  */
-util.getYearWeek = function (dateString){
-	var da =dateString;//日期格式2015-12-30
-	//当前日期
-	var date1 = new Date(da.substring(0,4), parseInt(da.substring(5,7)) - 1, da.substring(8,10));
-	//1月1号
-	var date2 = new Date(da.substring(0,4), 0, 1);
-	//获取1月1号星期（以周一为第一天，0周一~6周日）
-	var dateWeekNum=date2.getDay()-1;
-	if(dateWeekNum<0){dateWeekNum=6;}
-	if(dateWeekNum<4){
-		//前移日期
-		date2.setDate(date2.getDate()-dateWeekNum);
-	}else{
-		//后移日期
-		date2.setDate(date2.getDate()+7-dateWeekNum);
-	}
-	var d = Math.round((date1.valueOf() - date2.valueOf()) / 86400000);
-	if(d<0){
-		var date3 = (date1.getFullYear()-1)+"-12-31";
-		return getYearWeek(date3);
-	}else{
-		//得到年数周数
-		var year=date1.getFullYear();
-		var week=Math.ceil((d+1 )/ 7);
-		return week;
-	}
+util.getYearWeek = function (dateString) {
+    var da = dateString; //日期格式2015-12-30
+    //当前日期
+    var date1 = new Date(da.substring(0, 4), parseInt(da.substring(5, 7)) - 1, da.substring(8, 10));
+    //1月1号
+    var date2 = new Date(da.substring(0, 4), 0, 1);
+    //获取1月1号星期（以周一为第一天，0周一~6周日）
+    var dateWeekNum = date2.getDay() - 1;
+    if (dateWeekNum < 0) {
+        dateWeekNum = 6;
+    }
+    if (dateWeekNum < 4) {
+        //前移日期
+        date2.setDate(date2.getDate() - dateWeekNum);
+    } else {
+        //后移日期
+        date2.setDate(date2.getDate() + 7 - dateWeekNum);
+    }
+    var d = Math.round((date1.valueOf() - date2.valueOf()) / 86400000);
+    if (d < 0) {
+        var date3 = (date1.getFullYear() - 1) + "-12-31";
+        return getYearWeek(date3);
+    } else {
+        //得到年数周数
+        var year = date1.getFullYear();
+        var week = Math.ceil((d + 1) / 7);
+        return week;
+    }
 }
 
 /**
@@ -349,23 +345,26 @@ util.getYearWeek = function (dateString){
  * @returns {{date: *, section: number}}
  */
 util.getSecion = function (date) {
-	let dateMonth = date.getMonth();
-	let section = 0;
-	if(dateMonth>=0 && dateMonth<3){
-		section = 1;
-		date.setMonth(0);
-	}else if(dateMonth>=3 && dateMonth<6){
-		section = 2;
-		date.setMonth(3);
-	}else if(dateMonth>=6 && dateMonth<9){
-		section = 3;
-		date.setMonth(6);
-	}else if(dateMonth>=9 && dateMonth<12){
-		section = 4;
-		date.setMonth(9);
-	}
-	date.setDate(1);
-	return {date,section};
+    let dateMonth = date.getMonth();
+    let section = 0;
+    if (dateMonth >= 0 && dateMonth < 3) {
+        section = 1;
+        date.setMonth(0);
+    } else if (dateMonth >= 3 && dateMonth < 6) {
+        section = 2;
+        date.setMonth(3);
+    } else if (dateMonth >= 6 && dateMonth < 9) {
+        section = 3;
+        date.setMonth(6);
+    } else if (dateMonth >= 9 && dateMonth < 12) {
+        section = 4;
+        date.setMonth(9);
+    }
+    date.setDate(1);
+    return {
+        date,
+        section
+    };
 }
 
 
@@ -377,11 +376,11 @@ util.getSecion = function (date) {
  * @param key 查询关键字
  * @returns {*} 返回查询后的结果树，把原来的树替换掉就可以
  */
-util.searchTree = function(items,nameField,childField,key) {
+util.searchTree = function (items, nameField, childField, key) {
     //相当于克隆了一个对象
     const resultTemp = JSON.parse(JSON.stringify(items));
-    const reg = RegExp(".*?"+key,"gi");
-    util.forEachChild(resultTemp,reg,nameField,childField);
+    const reg = RegExp(".*?" + key, "gi");
+    util.forEachChild(resultTemp, reg, nameField, childField);
     return resultTemp;
 }
 /**
@@ -392,19 +391,20 @@ util.searchTree = function(items,nameField,childField,key) {
  * @param childField 代表子类数组的字段名称
  * @returns {boolean}   true就是找到了
  */
-util.forEachChild = function(items,reg,nameField,childField) {
-    var subsTem = [],childItems;
+util.forEachChild = function (items, reg, nameField, childField) {
+    var subsTem = [],
+        childItems;
     items[childField].forEach(function (child) {
         childItems = child[childField];
         //设置从开头匹配
         reg.lastIndex = 0;
-        if(reg.test(child[nameField])){
+        if (reg.test(child[nameField])) {
             //还是要递归一下它的子类
-            if(childItems!=undefined && childItems.length>0){
-                util.forEachChild(child,reg,nameField,childField);
+            if (childItems != undefined && childItems.length > 0) {
+                util.forEachChild(child, reg, nameField, childField);
             }
             subsTem.push(child);
-        }else if(childItems!=undefined && childItems.length>0 && util.forEachChild(child,reg,nameField,childField).length>0){
+        } else if (childItems != undefined && childItems.length > 0 && util.forEachChild(child, reg, nameField, childField).length > 0) {
             //当前不匹配，但是子类匹配到了，也保留
             subsTem.push(child);
         }
@@ -418,24 +418,24 @@ util.forEachChild = function(items,reg,nameField,childField) {
  * @param json
  * @param selectId 选中的Id
  */
-util.jsonToTree = function(json,firstTitle){
+util.jsonToTree = function (json, firstTitle) {
     var treeData = {
-        title: firstTitle?firstTitle:'后台资源',
-        id:0,
+        title: firstTitle ? firstTitle : '后台资源',
+        id: 0,
         expand: true,
-        children:[]
+        children: []
     };
     json.forEach(function (item) {
-        if(item.parentId==0){
+        if (item.parentId == 0) {
             treeData.children.push({
-                title:item.name,
-                expand:true,
-                id:item.id,
-                parentId:0
+                title: item.name,
+                expand: true,
+                id: item.id,
+                parentId: 0
             })
         }
     });
-    setTreeChild(treeData.children,json);
+    setTreeChild(treeData.children, json);
     return [treeData];
 }
 /**
@@ -444,23 +444,23 @@ util.jsonToTree = function(json,firstTitle){
  * @param datas
  * @param selectId 要被选中的ID
  */
-function setTreeChild(treeChild,datas) {
+function setTreeChild(treeChild, datas) {
     treeChild.forEach(function (item) {
         datas.forEach(function (data) {
-            if(data.parentId==item.id){
-                if(item.children==undefined){
-                    item.children=[];
+            if (data.parentId == item.id) {
+                if (item.children == undefined) {
+                    item.children = [];
                 }
                 item.children.push({
-                    title:data.name,
-                    expand:true,
-                    id:data.id,
-                    parentId:data.parentId
+                    title: data.name,
+                    expand: true,
+                    id: data.id,
+                    parentId: data.parentId
                 });
             }
         });
-        if(item.children!=undefined && item.children.length>0){
-            setTreeChild(item.children,datas);
+        if (item.children != undefined && item.children.length > 0) {
+            setTreeChild(item.children, datas);
         }
     });
 }
@@ -470,21 +470,21 @@ function setTreeChild(treeChild,datas) {
  * @param arr 勾选的ID数组
  * @returns {*}
  */
-util.doEachTree  = function (treeData,arr,isChecked,isDisable){
+util.doEachTree = function (treeData, arr, isChecked, isDisable) {
     treeData.forEach(function (item) {
         arr.forEach(function (obj) {
-            if(obj.id==item.id || obj==item.id){
-                if(isChecked){
-                    item.checked=true;
+            if (obj.id == item.id || obj == item.id) {
+                if (isChecked) {
+                    item.checked = true;
                 }
-                if(isDisable){
-                    item.disabled=true;
+                if (isDisable) {
+                    item.disabled = true;
                 }
                 return;
             }
         });
-        if(!item.checked && item.children!=undefined && item.children.length>0){
-            util.doEachTree(item.children,arr,isChecked,isDisable);
+        if (!item.checked && item.children != undefined && item.children.length > 0) {
+            util.doEachTree(item.children, arr, isChecked, isDisable);
         }
     });
     return treeData;
@@ -495,15 +495,15 @@ util.doEachTree  = function (treeData,arr,isChecked,isDisable){
  * @param treeData 数组
  * @param 名称
  */
-util.MenudoEachTree = function (treeData,toname) {
+util.MenudoEachTree = function (treeData, toname) {
     let res = false;
     treeData.forEach(function (item) {
-        if(res){
+        if (res) {
             return;
-        }else {
-            res = item.name==toname?true:false;
-            if(!res && item.children!=undefined && item.children.length>0){
-                res = util.MenudoEachTree(item.children,toname);
+        } else {
+            res = item.name == toname ? true : false;
+            if (!res && item.children != undefined && item.children.length > 0) {
+                res = util.MenudoEachTree(item.children, toname);
             }
         }
     });
@@ -516,12 +516,12 @@ util.MenudoEachTree = function (treeData,toname) {
  * @returns {*|AxiosPromise}
  */
 util.dic = function (dicCode) {
-	return util.ajax.post('/pubApi/dic/dicItemList?dicCode='+dicCode);
+    return util.ajax.post('/pubApi/dic/dicItemList?dicCode=' + dicCode);
 };
 
 //===================
 util.allcompany = function () {
-	return util.ajax.post('/pubApi/yuanlin/mtccompany');
+    return util.ajax.post('/pubApi/yuanlin/mtccompany');
 }
 
 export default util;

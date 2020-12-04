@@ -64,6 +64,24 @@ export const otherRouter = {
 
 // 作为Main组件的子页面展示并且在左侧菜单显示的路由写在appRouter里
 export const appRouter = [
+	
+	// 树木管理
+	{
+		path: '/tree',
+		icon: 'ios-paper',
+		title: '树木管理',
+		name: 'tree',
+		component: Main,
+		children: [{
+			path: 'treeList',
+			icon: 'image',
+			name: 'treeList',
+			title: '树木列表',
+			component: resolve => {
+				require(['@/views/yuanlin/tree/treeList.vue'], resolve);
+			}
+		}]
+	},
 
 	// 项目管理
 	{
@@ -109,24 +127,6 @@ export const appRouter = [
 		}]
 	},
 
-	// 树木管理
-	{
-		path: '/tree',
-		icon: 'ios-paper',
-		title: '树木管理',
-		name: 'tree',
-		component: Main,
-		children: [{
-			path: 'treeList',
-			icon: 'image',
-			name: 'treeList',
-			title: '树木列表',
-			component: resolve => {
-				require(['@/views/yuanlin/tree/treeList.vue'], resolve);
-			}
-		}]
-	},
-
 	// 养护管理
 	{
 		path: '/maintain',
@@ -145,18 +145,18 @@ export const appRouter = [
 		}]
 	},
 
-	// 用户管理
+	// 客户管理
 	{
 		path: '/user',
 		icon: 'ios-paper',
-		title: '用户管理',
+		title: '客户管理',
 		name: 'user',
 		component: Main,
 		children: [{
 			path: 'list',
 			icon: 'ios-paper',
 			name: 'userlist',
-			title: '用户列表',
+			title: '客户列表',
 			component: resolve => {
 				require(['@/views/yuanlin/user/userList.vue'], resolve);
 			}

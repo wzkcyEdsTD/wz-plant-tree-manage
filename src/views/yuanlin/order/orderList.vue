@@ -68,11 +68,6 @@
                 <span>{{ formItem.registered_name || `无` }}</span>
               </FormItem>
             </Col>
-            <Col :span="12">
-              <FormItem label="手机号">
-                <span>{{ formItem.phone || `无` }}</span>
-              </FormItem>
-            </Col>
           </Row>
           <Row>
             <Col :span="6">
@@ -111,7 +106,9 @@
           <Row>
             <Col :span="12">
               <FormItem label="认养寄语">
-                <span>{{ formItem.wishes || `无` }}</span>
+                <span>{{
+                  formItem.correctd_wishes || formItem.wishes || `无`
+                }}</span>
               </FormItem>
             </Col>
           </Row>
@@ -220,8 +217,14 @@ export default {
         },
         {
           title: "序号",
-          type: "index",
           width: 80,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              params.index + (this.page.nowPage - 1) * this.page.pageSize + 1
+            );
+          },
         },
         {
           title: "订单编号",
@@ -283,8 +286,13 @@ export default {
         },
         {
           title: "认种认养寄语",
-          key: "wishes",
           width: 150,
+          render: (h, params) => {
+            return h(
+              "span",
+              params.row.correctd_wishes || params.row.wishes || "无"
+            );
+          },
         },
         {
           title: "操作",
@@ -386,7 +394,10 @@ export default {
           if (formItem.state && formItem.state == "1") {
             formItem.state = "2";
             Util.ajax
-              .post(this.apiUrlPrefix + "update", formItem)
+              .post(self.apiUrlPrefix + "update", {
+                id: formItem.id,
+                state: formItem.state,
+              })
               .then(function (response) {
                 if (response.data.code == "100") {
                   self.init();

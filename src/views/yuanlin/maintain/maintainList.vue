@@ -123,8 +123,14 @@ export default {
         },
         {
           title: "序号",
-          type: "index",
           width: 80,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              params.index + (this.page.nowPage - 1) * this.page.pageSize + 1
+            );
+          },
         },
         {
           title: "所属年度",

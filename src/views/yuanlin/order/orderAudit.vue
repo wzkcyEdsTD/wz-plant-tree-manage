@@ -77,6 +77,13 @@
           <Row>
             <Col :span="12">
               <FormItem label="认养寄语">
+                <span>{{ formItem.wishes || `无` }}</span>
+              </FormItem>
+            </Col>
+          </Row>
+          <Row>
+            <Col :span="12">
+              <FormItem label="修正寄语">
                 <Input
                   v-model="editWishes"
                   placeholder="若需要修改，请输入"
@@ -141,8 +148,14 @@ export default {
         },
         {
           title: "序号",
-          type: "index",
           width: 80,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              params.index + (this.page.nowPage - 1) * this.page.pageSize + 1
+            );
+          },
         },
         {
           title: "订单编号",
@@ -187,8 +200,13 @@ export default {
         },
         {
           title: "认种认养寄语",
-          key: "wishes",
           width: 180,
+          render: (h, params) => {
+            return h(
+              "span",
+              params.row.correctd_wishes || params.row.wishes || "无"
+            );
+          },
         },
         {
           title: "操作",
@@ -344,7 +362,8 @@ export default {
           if (response.data.code == "100") {
             self.clearFormItem();
             self.formItem = response.data.formItem;
-            self.formItem.wishes && (self.editWishes = self.formItem.wishes);
+            self.formItem.correctd_wishes &&
+              (self.editWishes = self.formItem.correctd_wishes);
             self.modal.show = true;
             self.modal.isadd = false;
           } else {
@@ -364,7 +383,7 @@ export default {
             Util.ajax
               .post(self.apiUrlPrefix + "update", {
                 id: self.formItem.id,
-                wishes: self.editWishes,
+                correctd_wishes: self.editWishes,
                 wishes_status: 3,
               })
               .then((response) => {

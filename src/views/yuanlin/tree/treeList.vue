@@ -50,7 +50,14 @@
       <p slot="header" style="text-align: center">
         <span>简介</span>
       </p>
-      <div style="padding: 10px; font-size: 16px">
+      <div
+        style="
+          padding: 10px;
+          font-size: 16px;
+          text-align: justify;
+          text-indent: 2em;
+        "
+      >
         {{ describeModal.content }}
       </div>
       <Row slot="footer">
@@ -244,8 +251,14 @@ export default {
         },
         {
           title: "序号",
-          type: "index",
           width: 80,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              params.index + (this.page.nowPage - 1) * this.page.pageSize + 1
+            );
+          },
         },
         {
           title: "名称",

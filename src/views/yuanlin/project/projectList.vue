@@ -199,6 +199,11 @@
           </Row>
           <Row>
             <Col :span="12">
+              <FormItem label="地理位置">
+                <div id="arcgisMap2" style="width: 300px; height: 200px"></div>
+              </FormItem>
+            </Col>
+            <Col :span="12">
               <FormItem label="全景链接">
                 <a
                   v-if="formItem.ar_url"
@@ -206,6 +211,20 @@
                   target="_blank"
                   rel="noopener noreferrer"
                   >{{ formItem.ar_url }}</a
+                >
+                <span v-else>无</span>
+              </FormItem>
+            </Col>
+          </Row>
+          <Row>
+            <Col :span="12">
+              <FormItem label="分布图">
+                <a
+                  v-if="formItem.ar_url"
+                  :href="formItem.ar_url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >查看树-公益牌分布图</a
                 >
                 <span v-else>无</span>
               </FormItem>
@@ -221,32 +240,6 @@
                     ? "已解挂"
                     : "无"
                 }}</span>
-              </FormItem>
-            </Col>
-          </Row>
-          <Row>
-            <Col :span="12">
-              <FormItem label="地理位置">
-                <a
-                  v-if="formItem.ar_url"
-                  :href="formItem.ar_url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >查看项目地理位置</a
-                >
-                <span v-else>无</span>
-              </FormItem>
-            </Col>
-            <Col :span="12">
-              <FormItem label="分布图">
-                <a
-                  v-if="formItem.ar_url"
-                  :href="formItem.ar_url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >查看树-公益牌分布图</a
-                >
-                <span v-else>无</span>
               </FormItem>
             </Col>
           </Row>
@@ -519,8 +512,14 @@ export default {
         },
         {
           title: "序号",
-          type: "index",
           width: 80,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              params.index + (this.page.nowPage - 1) * this.page.pageSize + 1
+            );
+          },
         },
         {
           title: "项目名称",
@@ -807,9 +806,9 @@ export default {
                   x: numX,
                   y: numY,
                 };
-                // self.initMap({ center });
+                self.initMap2({ center });
               } else {
-                // self.initMap();
+                self.initMap2();
               }
             }
 
@@ -1132,6 +1131,68 @@ export default {
 
             graphicsLayer.add(pointGraphic);
           });
+        });
+      });
+    },
+
+
+    initMap2(option) {
+      const self = this;
+      return new Promise((resolve, reject) => {
+        loadModules(
+          [
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/VectorTileLayer",
+            "esri/layers/GraphicsLayer",
+            "esri/Graphic",
+          ],
+          OPTION
+        ).then(([Map, MapView, VectorTileLayer, GraphicsLayer, Graphic]) => {
+          self.map = new Map();
+          self.view = new MapView({
+            container: "arcgisMap2",
+            map: self.map,
+            center: [120.6635, 27.9997],
+            zoom: 13,
+          });
+          const layer = new VectorTileLayer({
+            url:
+              "https://services.wzmap.gov.cn/server/rest/services/Hosted/YL/VectorTileServer",
+          });
+          self.map.add(layer);
+
+          const graphicsLayer = new GraphicsLayer();
+          self.map.add(graphicsLayer);
+
+          const markerSymbol = {
+            type: "simple-marker",
+            color: [255, 255, 255],
+            size: "13px",
+            outline: {
+              color: [41, 68, 222],
+              width: 3,
+            },
+          };
+
+          // 编辑
+          if (option && option.center) {
+            self.view.goTo({
+              center: option.center,
+            });
+            graphicsLayer.removeAll();
+
+            const pointGraphic = new Graphic({
+              geometry: {
+                type: "point",
+                x: option.center[0],
+                y: option.center[1],
+              },
+              symbol: markerSymbol,
+            });
+
+            graphicsLayer.add(pointGraphic);
+          }
         });
       });
     },
