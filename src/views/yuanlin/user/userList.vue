@@ -1,10 +1,6 @@
 <template>
   <div class="layout">
     <Row>
-      <Button-group>
-        <i-button type="info" @click="toadd()">添加</i-button>
-        <i-button type="error" @click="batchDelete()">删除</i-button>
-      </Button-group>
       <Input
         v-model="page.key"
         placeholder="请输入关键字搜搜..."
@@ -43,40 +39,126 @@
       ></Page>
     </div>
     <!-- 自定义Modal -->
-    <Modal v-model="modal.show" width="700" :mask-closable="false">
+    <Modal v-model="modal.show" width="1100" :mask-closable="false">
       <p slot="header" style="text-align: center">
         <span>详情</span>
       </p>
       <!--表单-->
       <div>
         <Form :model="formItem" :label-width="80">
-          <FormItem label="昵称">
-            <Input v-model="formItem.nickname" placeholder="请输入昵称"></Input>
-          </FormItem>
-          <FormItem label="真实姓名">
-            <Input v-model="formItem.name" placeholder="请输入真实姓名"></Input>
-          </FormItem>
-          <FormItem label="手机号">
-            <Input v-model="formItem.phone" placeholder="请输入手机号"></Input>
-          </FormItem>
-          <FormItem label="状态">
-            <RadioGroup v-model="formItem.status">
-              <Radio :label="1">正常</Radio>
-              <Radio :label="0">禁用</Radio>
-            </RadioGroup>
-          </FormItem>
-          <FormItem label="头像">
-            <img v-if="formItem.headpic" :src="formItem.headpic" width="80" />
-          </FormItem>
-          <FormItem label="openid">
-            {{ formItem.openid }}
-          </FormItem>
+          <div style="border: solid 1px #dddee1">
+            <div
+              style="
+                font-weight: bolder;
+                font-size: 14px;
+                padding: 10px 10px 5px;
+              "
+            >
+              用户基本信息
+            </div>
+            <Row>
+              <Col :span="6">
+                <FormItem label="OpenID">
+                  <span>{{ formItem.openid }}</span>
+                </FormItem>
+              </Col>
+              <Col :span="6">
+                <FormItem label="国家">
+                  <span>{{ formItem.country }}</span>
+                </FormItem>
+              </Col>
+              <Col :span="6">
+                <FormItem label="省份">
+                  <span>{{ formItem.province }}</span>
+                </FormItem>
+              </Col>
+              <Col :span="6">
+                <FormItem label="城市">
+                  <span>{{ formItem.city }}</span>
+                </FormItem>
+              </Col>
+            </Row>
+            <Row>
+              <Col :span="6">
+                <FormItem label="昵称">
+                  <span>{{ formItem.nickname }}</span>
+                </FormItem>
+              </Col>
+              <Col :span="6">
+                <FormItem label="性别">
+                  <span>{{
+                    formItem.sex == 1 ? "男" : formItem.sex == 2 ? "女" : ""
+                  }}</span>
+                </FormItem>
+              </Col>
+              <Col :span="6">
+                <FormItem label="关注时间">
+                  <span>{{
+                    new Date(formItem.createtime).Format("yyyy-MM-dd")
+                  }}</span>
+                </FormItem>
+              </Col>
+              <Col :span="6">
+                <FormItem label="状态">
+                  <span>{{
+                    formItem.status == 1
+                      ? "正常"
+                      : formItem.status == 0
+                      ? "禁用"
+                      : ""
+                  }}</span>
+                </FormItem>
+              </Col>
+            </Row>
+            <FormItem label="头像">
+              <img v-if="formItem.headpic" :src="formItem.headpic" width="80" />
+            </FormItem>
+          </div>
+          <div style="border: solid 1px #dddee1; margin-top: 10px">
+            <div
+              style="
+                font-weight: bolder;
+                font-size: 14px;
+                padding: 10px 10px 5px;
+              "
+            >
+              用户认种认养相关信息
+            </div>
+            <div v-if="formItem.pctreerankinginfo">
+              <Row>
+                <Col :span="6">
+                  <FormItem label="下单量">
+                    <span>{{ formItem.pctreerankinginfo.ordercount }}</span>
+                  </FormItem>
+                </Col>
+                <Col :span="6">
+                  <FormItem label="树木总量">
+                    <span>{{ formItem.pctreerankinginfo.treecount }}</span>
+                  </FormItem>
+                </Col>
+                <Col :span="6">
+                  <FormItem label="养护次数">
+                    <span>{{ formItem.pctreerankinginfo.treemaintain }}</span>
+                  </FormItem>
+                </Col>
+                <Col :span="6">
+                  <FormItem label="支付总金额">
+                    <span>{{ formItem.pctreerankinginfo.amountsum }}</span>
+                  </FormItem>
+                </Col>
+              </Row>
+            </div>
+            <div v-else>
+              <span style="display: block; text-align: center; padding: 20px"
+                >暂无相关信息</span
+              >
+            </div>
+          </div>
         </Form>
       </div>
       <Row slot="footer">
-        <Button type="info" size="large" @click="update()">确定</Button>
-        <Button type="ghost" size="large" @click="modal.show = false"
-          >取消</Button
+        <Button type="info" size="large" @click="modal.show = false"
+          >确定</Button
         >
       </Row>
     </Modal>
@@ -99,6 +181,7 @@ export default {
         total: 100,
         sizeopt: [10, 30, 60, 100],
         key: "",
+        bean: {},
       },
       formItem: {},
       columns1: [
@@ -109,26 +192,87 @@ export default {
         },
         {
           title: "序号",
-          type: "index",
           width: 80,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              params.index + (this.page.nowPage - 1) * this.page.pageSize + 1
+            );
+          },
+        },
+        {
+          title: "OpenID",
+          key: "openid",
+          width: 160,
         },
         {
           title: "昵称",
           key: "nickname",
-          minWidth: 150,
+          width: 140,
         },
         {
-          title: "真实姓名",
-          key: "name",
-          width: 120,
-        },
-        {
-          title: "注册时间",
-          width: 200,
+          title: "性别",
+          width: 80,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
-              new Date(params.row.createtime).Format("yyyy-MM-dd hh:mm:ss")
+              params.row.sex == 1 ? "男" : params.row.sex == 2 ? "女" : ""
+            );
+          },
+        },
+        {
+          title: "头像",
+          width: 110,
+          align: "center",
+          render: (h, params) => {
+            return h("img", {
+              attrs: {
+                src: params.row.headpic,
+                style: "width: 80px;",
+              },
+            });
+          },
+        },
+        {
+          title: "国家",
+          key: "country",
+          minWidth: 80,
+        },
+        {
+          title: "省份",
+          key: "province",
+          minWidth: 80,
+        },
+        {
+          title: "城市",
+          key: "city",
+          minWidth: 80,
+        },
+        {
+          title: "状态",
+          width: 80,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              params.row.status == 1
+                ? "正常"
+                : params.row.status == 0
+                ? "禁用"
+                : ""
+            );
+          },
+        },
+        {
+          title: "关注时间",
+          width: 100,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              new Date(params.row.createtime).Format("yyyy-MM-dd")
             );
           },
         },
@@ -155,22 +299,7 @@ export default {
                     },
                   },
                 },
-                "编辑"
-              ),
-              h(
-                "Button",
-                {
-                  props: {
-                    type: "error",
-                    size: "small",
-                  },
-                  on: {
-                    click: () => {
-                      this.delete(params);
-                    },
-                  },
-                },
-                "删除"
+                "查看"
               ),
             ]);
           },
@@ -211,8 +340,23 @@ export default {
           if (response.data.code == "100") {
             self.clearFormItem();
             self.formItem = response.data.formItem;
-            self.modal.show = true;
-            self.modal.isadd = false;
+
+            const page = self.page;
+            page.bean["id"] = params.row.id;
+
+            Util.ajax
+              .post("/api/sys/yl/ranking/pctreerankinginfo", page)
+              .then(function (response) {
+                if (response.data.code == "100") {
+                  self.formItem["pctreerankinginfo"] = response.data.data;
+                  self.modal.show = true;
+                  self.modal.isadd = false;
+
+                  console.log(self.formItem)
+                } else {
+                  alert(response.data.msg);
+                }
+              });
           } else {
             alert(response.data.msg);
           }
@@ -232,41 +376,7 @@ export default {
           }
         });
     },
-    delete(params) {
-      const self = this;
-      this.$Modal.confirm({
-        onOk() {
-          Util.ajax
-            .post(self.apiUrlPrefix + "delete", { id: params.row.id })
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-              }
-            });
-        },
-        content: "您确定要删除吗？",
-      });
-    },
-    batchDelete() {
-      const self = this;
-      this.$Modal.confirm({
-        onOk() {
-          var ids = "";
-          self.tableSelect.forEach(function (item) {
-            ids = ids + "," + item.id;
-          });
-          console.log(ids);
-          Util.ajax
-            .post(self.apiUrlPrefix + "delete", { id: ids.replace(",", "") })
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-              }
-            });
-        },
-        content: "您确定要删除选中项吗？",
-      });
-    },
+
     //表格选中项
     dochange(selection) {
       this.tableSelect = selection;

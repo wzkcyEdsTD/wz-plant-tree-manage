@@ -39,54 +39,95 @@
       ></Page>
     </div>
     <!-- 自定义Modal -->
-    <Modal v-model="modal.show" width="700" :mask-closable="false">
+    <Modal v-model="modal.show" width="1100" :mask-closable="false">
       <p slot="header" style="text-align: center">
         <span>详情</span>
       </p>
       <!--表单-->
       <div>
         <Form :model="formItem" :label-width="80">
-          <FormItem label="公园">
-            <Select v-model="formItem.parkfeature" filterable>
-              <Option
-                v-for="item in parkList"
-                :value="item.featuregui"
-                :key="item.name"
-                >{{ item.name }}</Option
-              >
-            </Select>
-          </FormItem>
-          <FormItem label="养护人">
-            <Input
-              v-model="formItem.mtc.name"
-              placeholder="请输入"
-              readonly
-            ></Input>
-          </FormItem>
-          <FormItem label="标题">
-            <Input
-              v-model="formItem.title"
-              placeholder="请输入"
-              readonly
-            ></Input>
-          </FormItem>
-          <FormItem label="内容">
-            <Input
-              type="textarea"
-              v-model="formItem.content"
-              placeholder="请输入"
-              readonly
-            ></Input>
-          </FormItem>
-          <FormItem label="图片">
-            <img :src="'/' + formItem.pic" alt="" />
-          </FormItem>
+          <div
+            v-for="(item, index) in formItem.datas"
+            :key="index"
+            style="border: solid 1px #dddee1"
+          >
+            <Row>
+              <Col :span="4">
+                <FormItem label="养护次序">
+                  <span>{{ item.maintence_num || 0 }}</span>
+                </FormItem>
+              </Col>
+              <Col :span="4">
+                <FormItem label="养护周期">
+                  <span>{{ item.maintenance_period || 0 }}</span>
+                </FormItem>
+              </Col>
+              <Col :span="4">
+                <FormItem label="种植/养护">
+                  <span>{{
+                    item.maintence_flg == 1
+                      ? "种植"
+                      : item.maintence_flg == 2
+                      ? "养护"
+                      : ""
+                  }}</span>
+                </FormItem>
+              </Col>
+              <Col :span="4">
+                <FormItem label="记录日期">
+                  <span>{{
+                    new Date(item.createtime).Format("yyyy-MM-dd")
+                  }}</span>
+                </FormItem>
+              </Col>
+            </Row>
+            <Row>
+              <Col :span="6">
+                <FormItem label="记录人员">
+                  <span>{{
+                    item.creatortype == "1"
+                      ? "业主单位"
+                      : item.creatortype == "0"
+                      ? "公众"
+                      : ""
+                  }}</span>
+                </FormItem>
+              </Col>
+              <Col :span="6">
+                <FormItem label="记录描述">
+                  <span>{{ item.describe }}</span>
+                </FormItem>
+              </Col>
+            </Row>
+            <Row>
+              <Col :span="24">
+                <FormItem label="现场照片">
+                  <div style="display: flex">
+                    <div
+                      v-for="index of 5"
+                      :key="index"
+                      v-if="item[`picture_${index}`]"
+                      style="margin-right: 10px"
+                    >
+                      <img
+                        :src="item[`picture_${index}`]"
+                        style="
+                          max-width: 95%;
+                          max-height: 100px;
+                          background: transparent !important;
+                        "
+                      />
+                    </div>
+                  </div>
+                </FormItem>
+              </Col>
+            </Row>
+          </div>
         </Form>
       </div>
       <Row slot="footer">
-        <Button type="info" size="large" @click="update()">确定</Button>
-        <Button type="ghost" size="large" @click="modal.show = false"
-          >取消</Button
+        <Button type="info" size="large" @click="modal.show = false"
+          >确定</Button
         >
       </Row>
     </Modal>
@@ -148,7 +189,11 @@ export default {
           render: (h, params) => {
             return h(
               "span",
-              params.row.creatortype == "1" ? "业主单位" : "公众"
+              params.row.creatortype == "1"
+                ? "业主单位"
+                : params.row.creatortype == "0"
+                ? "公众"
+                : ""
             );
           },
         },
@@ -157,7 +202,14 @@ export default {
           minWidth: 80,
           align: "center",
           render: (h, params) => {
-            return h("span", params.row.maintence_flg ? "种植" : "养护");
+            return h(
+              "span",
+              params.row.maintence_flg == 1
+                ? "种植"
+                : params.row.maintence_flg == 2
+                ? "养护"
+                : ""
+            );
           },
         },
         {
@@ -165,7 +217,12 @@ export default {
           minWidth: 80,
           align: "center",
           render: (h, params) => {
-            return h("span", `${params.row.maintence_num || 0} / 24`);
+            return h(
+              "span",
+              `${params.row.maintence_num || 0} / ${
+                params.row.maintenance_period || 0
+              }`
+            );
           },
         },
         {
@@ -202,7 +259,7 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.edit(params);
+                      this.check(params);
                     },
                   },
                 },
@@ -240,8 +297,22 @@ export default {
       this.modal.isadd = true;
     },
     //编辑
-    edit(params) {
+    check(params) {
       const self = this;
+      const page = this.page;
+      page.bean["project_num"] = params.row.project_num;
+      Util.ajax
+        .post(this.apiUrlPrefix + "list", page)
+        .then(function (response) {
+          if (response.data.code == "100") {
+            self.clearFormItem();
+            self.formItem = response.data.page;
+            self.modal.show = true;
+            self.modal.isadd = false;
+          } else {
+            alert(response.data.msg);
+          }
+        });
     },
     //保存
     update() {

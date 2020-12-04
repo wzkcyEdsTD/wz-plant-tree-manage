@@ -78,11 +78,13 @@
             <Col :span="6">
               <FormItem label="订单状态">
                 <span>{{
-                  formItem.state == "0"
+                  formItem.state == "1" && formItem.payment_date
                     ? "已付款"
-                    : formItem.state == "1"
+                    : formItem.state == "0"
                     ? "待支付"
-                    : "已退款"
+                    : formItem.state == "2"
+                    ? "已退款"
+                    : "无"
                 }}</span>
               </FormItem>
             </Col>
@@ -257,11 +259,13 @@ export default {
           render: (h, params) => {
             return h(
               "span",
-              params.row.state == "0"
+              params.row.state == "1" && params.row.payment_date
                 ? "已付款"
-                : params.row.state == "1"
+                : params.row.state == "0"
                 ? "待支付"
-                : "已退款"
+                : params.row.state == "2"
+                ? "已退款"
+                : "无"
             );
           },
         },
@@ -391,22 +395,16 @@ export default {
       const formItem = params.row;
       this.$Modal.confirm({
         onOk() {
-          if (formItem.state && formItem.state == "1") {
-            formItem.state = "2";
-            Util.ajax
-              .post(self.apiUrlPrefix + "update", {
-                id: formItem.id,
-                state: formItem.state,
-              })
-              .then(function (response) {
-                if (response.data.code == "100") {
-                  self.init();
-                  self.modal.show = false;
-                } else {
-                  alert(response.data.msg);
-                }
-              });
-          }
+          Util.ajax
+            .post(self.apiUrlPrefix + "refund?outTradeNo=" + formItem.order_num)
+            .then(function (response) {
+              if (response.data.code == "100") {
+                self.init();
+                self.modal.show = false;
+              } else {
+                alert(response.data.msg);
+              }
+            });
         },
         content: `您确定要退款吗？`,
       });
