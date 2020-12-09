@@ -91,11 +91,13 @@
           <Row>
             <Col :span="24">
               <FormItem label="项目介绍">
-                <span>{{
+                <!-- <span>{{
                   formItem.description
                     ? formItem.description.replace("↵", "")
                     : "无"
-                }}</span>
+                }}</span> -->
+
+                <span v-html="formItem.text"></span>
               </FormItem>
             </Col>
           </Row>
@@ -436,6 +438,12 @@
               </FormItem>
             </Col>
           </Row>
+          <FormItem label="内容">
+            <text-editor
+              v-model="formItem.text"
+              :content="formItem.text"
+            ></text-editor>
+          </FormItem>
         </Form>
       </div>
       <Row slot="footer">
@@ -466,16 +474,14 @@
 <script>
 import { loadModules } from "esri-loader";
 import Util from "@/libs/util";
-//import TextEditor from '@/views/mylib/text-editor/text-editor.vue';
+import TextEditor from "@/views/mylib/text-editor/text-editor.vue";
 import Uploader from "@/views/mylib/imageUpload/imageUpload.vue";
 const OPTION = {
   url:
     "https://lysb.lucheng.gov.cn/lc/libs/arcgis_js_v412_api/arcgis_js_api/library/4.12/dojo/dojo.js",
 };
 export default {
-  components: {
-    Uploader,
-  },
+  components: { TextEditor, Uploader },
   data() {
     return {
       //接口前缀
@@ -1134,7 +1140,6 @@ export default {
         });
       });
     },
-
 
     initMap2(option) {
       const self = this;

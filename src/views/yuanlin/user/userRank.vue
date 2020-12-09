@@ -13,6 +13,15 @@
       >
     </Row>
     <br />
+    <Row>
+      <RadioGroup v-model="type" type="button" @on-change="changeType">
+        <Radio label="type1" class="radio_type">认种认养树木总量排行</Radio>
+        <Radio label="type2" class="radio_type">绿值余额总量排行</Radio>
+        <Radio label="type3" class="radio_type">认种认养捐资总额排行</Radio>
+        <Radio label="type4" class="radio_type">植树尽责捐资总额排行</Radio>
+      </RadioGroup>
+    </Row>
+    <br />
     <!--表单-->
     <Table
       ref="table"
@@ -173,8 +182,8 @@ import Util from "@/libs/util";
 export default {
   data() {
     return {
-      //接口前缀
-      apiUrlPrefix: "/api/sys/yl/user/",
+      // 接口前缀
+      apiUrlPrefix: "/api/sys/yl/ranking/",
       modal: {
         show: false,
         isadd: true,
@@ -216,69 +225,22 @@ export default {
           width: 200,
         },
         {
-          title: "性别",
-          width: 80,
-          align: "center",
-          render: (h, params) => {
-            return h(
-              "span",
-              params.row.sex == 1 ? "男" : params.row.sex == 2 ? "女" : ""
-            );
-          },
-        },
-        {
-          title: "头像",
-          width: 150,
-          align: "center",
-          render: (h, params) => {
-            return h("img", {
-              attrs: {
-                src: params.row.headpic,
-                style: "width: 80px;",
-              },
-            });
-          },
-        },
-        {
-          title: "国家",
-          key: "country",
+          title: "认种树木总数",
+          key: "treecount",
           minWidth: 80,
-        },
-        {
-          title: "省份",
-          key: "province",
-          minWidth: 80,
-        },
-        {
-          title: "城市",
-          key: "city",
-          minWidth: 80,
-        },
-        {
-          title: "状态",
-          width: 120,
           align: "center",
-          render: (h, params) => {
-            return h(
-              "span",
-              params.row.status == 1
-                ? "正常"
-                : params.row.status == 0
-                ? "禁用"
-                : ""
-            );
-          },
         },
         {
-          title: "关注时间",
-          width: 150,
+          title: "养护树木次数",
+          key: "treemaintain",
+          minWidth: 80,
           align: "center",
-          render: (h, params) => {
-            return h(
-              "span",
-              new Date(params.row.createtime).Format("yyyy-MM-dd")
-            );
-          },
+        },
+        {
+          title: "下单量",
+          key: "ordercount",
+          minWidth: 80,
+          align: "center",
         },
         {
           title: "操作",
@@ -310,6 +272,7 @@ export default {
       data1: [], //表格数据
       tableSelect: [], //表格选中项
       loading: true, //表格加载
+      type: "type1",
     };
   },
   methods: {
@@ -318,7 +281,7 @@ export default {
       const self = this;
       self.loading = true;
       Util.ajax
-        .post(this.apiUrlPrefix + "list", this.page)
+        .post(this.apiUrlPrefix + "pctreeranking", this.page)
         .then(function (response) {
           self.loading = false;
           const data = response.data;
@@ -405,9 +368,23 @@ export default {
       this.page.nowPage = 1;
       this.init();
     },
+
+    changeType(val) {
+      console.log(val);
+    },
   },
-  mounted: function () {
+  mounted() {
     this.init();
   },
 };
 </script>
+
+<style>
+.radio_type {
+  font-size: 16px !important;
+  padding: 0px 18px !important;
+  margin: 0 10px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+}
+</style>

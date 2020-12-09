@@ -160,22 +160,22 @@ export default {
         {
           title: "订单编号",
           key: "order_num",
-          width: 150,
+          width: 250,
         },
         {
           title: "用户昵称",
           key: "registered_name",
-          width: 120,
+          width: 150,
         },
         {
           title: "手机号",
           key: "phone",
-          width: 120,
+          width: 150,
         },
         {
           title: "项目名称",
           key: "project_name",
-          width: 120,
+          width: 200,
         },
         {
           title: "审核状态",
@@ -200,7 +200,7 @@ export default {
         },
         {
           title: "认种认养寄语",
-          width: 180,
+          width: 250,
           render: (h, params) => {
             return h(
               "span",

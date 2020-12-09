@@ -64,7 +64,7 @@ export const otherRouter = {
 
 // 作为Main组件的子页面展示并且在左侧菜单显示的路由写在appRouter里
 export const appRouter = [
-	
+
 	// 树木管理
 	{
 		path: '/tree',
@@ -159,6 +159,14 @@ export const appRouter = [
 			title: '客户列表',
 			component: resolve => {
 				require(['@/views/yuanlin/user/userList.vue'], resolve);
+			}
+		}, {
+			path: 'rank',
+			icon: 'ios-paper',
+			name: 'userRank',
+			title: '排行榜',
+			component: resolve => {
+				require(['@/views/yuanlin/user/userRank.vue'], resolve);
 			}
 		}]
 	},

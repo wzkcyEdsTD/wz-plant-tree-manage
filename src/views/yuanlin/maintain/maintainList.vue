@@ -110,7 +110,7 @@
                       style="margin-right: 10px"
                     >
                       <img
-                        :src="item[`picture_${index}`]"
+                        src="/upload/1d5dc3a8ecbb4a86ad81bbc3cb586e04.jpg"
                         style="
                           max-width: 95%;
                           max-height: 100px;
@@ -177,15 +177,16 @@ export default {
           title: "所属年度",
           key: "year",
           width: 100,
+          align: "center",
         },
         {
           title: "所属项目",
           key: "project_name",
-          width: 120,
+          width: 200,
         },
         {
           title: "记录添加单位",
-          width: 120,
+          width: 200,
           render: (h, params) => {
             return h(
               "span",
@@ -199,7 +200,7 @@ export default {
         },
         {
           title: "种植/养护",
-          minWidth: 80,
+          minWidth: 100,
           align: "center",
           render: (h, params) => {
             return h(
@@ -214,7 +215,7 @@ export default {
         },
         {
           title: "养护进度",
-          minWidth: 80,
+          minWidth: 100,
           align: "center",
           render: (h, params) => {
             return h(
@@ -238,13 +239,14 @@ export default {
         {
           title: "本次记录描述",
           key: "describe",
-          minWidth: 120,
+          minWidth: 200,
         },
         {
           title: "操作",
           fixed: "right",
           minWidth: 150,
           key: "action",
+          align: "center",
           render: (h, params) => {
             return h("div", [
               h(
@@ -253,9 +255,6 @@ export default {
                   props: {
                     type: "primary",
                     size: "small",
-                  },
-                  style: {
-                    marginRight: "10px",
                   },
                   on: {
                     click: () => {
