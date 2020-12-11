@@ -237,11 +237,44 @@
               </FormItem>
             </Col>
           </Row>
-          <FormItem label="项目介绍">
-            <a :href="formItem.project_text" target="_blank">
-              <img :src="formItem.project_text" />
-            </a>
-          </FormItem>
+          <Row>
+            <Col :span="8">
+              <FormItem label="项目简介">
+                <a
+                  v-if="formItem.project_text"
+                  :href="formItem.project_text"
+                  target="_blank"
+                >
+                  <img :src="formItem.project_text" style="width: 100%" />
+                </a>
+                <span v-else>暂无简介</span>
+              </FormItem>
+            </Col>
+            <Col :span="8">
+              <FormItem label="树种简介">
+                <a
+                  v-if="formItem.tree_text"
+                  :href="formItem.tree_text"
+                  target="_blank"
+                >
+                  <img :src="formItem.tree_text" style="width: 100%" />
+                </a>
+                <span v-else>暂无简介</span>
+              </FormItem>
+            </Col>
+            <Col :span="8">
+              <FormItem label="价格明细">
+                <a
+                  v-if="formItem.price_text"
+                  :href="formItem.price_text"
+                  target="_blank"
+                >
+                  <img :src="formItem.price_text" style="width: 100%" />
+                </a>
+                <span v-else>暂无明细</span>
+              </FormItem>
+            </Col>
+          </Row>
         </Form>
       </div>
       <Row slot="footer">
@@ -287,33 +320,6 @@
               <Col :span="6">
                 <img
                   :src="formItem.project_cover"
-                  style="
-                    max-width: 95%;
-                    max-height: 100px;
-                    background: transparent !important;
-                  "
-                />
-              </Col>
-            </Row>
-          </FormItem>
-          <FormItem label="项目简介">
-            <Row>
-              <Col :span="10">
-                <Input
-                  v-model="formItem.project_text"
-                  placeholder="输入图片链接地址"
-                >
-                  <Button
-                    slot="append"
-                    icon="upload"
-                    @click.native="uploadShow2 = true"
-                    >选择或上传</Button
-                  >
-                </Input>
-              </Col>
-              <Col :span="6">
-                <img
-                  :src="formItem.project_text"
                   style="
                     max-width: 95%;
                     max-height: 100px;
@@ -462,6 +468,87 @@
               </FormItem>
             </Col>
           </Row>
+          <FormItem label="项目简介">
+            <Row>
+              <Col :span="10">
+                <Input
+                  v-model="formItem.project_text"
+                  placeholder="输入图片链接地址"
+                >
+                  <Button
+                    slot="append"
+                    icon="upload"
+                    @click.native="uploadShow2 = true"
+                    >选择或上传</Button
+                  >
+                </Input>
+              </Col>
+              <Col :span="6">
+                <img
+                  :src="formItem.project_text"
+                  style="
+                    max-width: 95%;
+                    max-height: 100px;
+                    background: transparent !important;
+                  "
+                />
+              </Col>
+            </Row>
+          </FormItem>
+          <FormItem label="树种简介">
+            <Row>
+              <Col :span="10">
+                <Input
+                  v-model="formItem.tree_text"
+                  placeholder="输入图片链接地址"
+                >
+                  <Button
+                    slot="append"
+                    icon="upload"
+                    @click.native="uploadShow3 = true"
+                    >选择或上传</Button
+                  >
+                </Input>
+              </Col>
+              <Col :span="6">
+                <img
+                  :src="formItem.tree_text"
+                  style="
+                    max-width: 95%;
+                    max-height: 100px;
+                    background: transparent !important;
+                  "
+                />
+              </Col>
+            </Row>
+          </FormItem>
+          <FormItem label="价格明细">
+            <Row>
+              <Col :span="10">
+                <Input
+                  v-model="formItem.price_text"
+                  placeholder="输入图片链接地址"
+                >
+                  <Button
+                    slot="append"
+                    icon="upload"
+                    @click.native="uploadShow4 = true"
+                    >选择或上传</Button
+                  >
+                </Input>
+              </Col>
+              <Col :span="6">
+                <img
+                  :src="formItem.price_text"
+                  style="
+                    max-width: 95%;
+                    max-height: 100px;
+                    background: transparent !important;
+                  "
+                />
+              </Col>
+            </Row>
+          </FormItem>
         </Form>
       </div>
       <Row slot="footer">
@@ -493,6 +580,20 @@
       @closemodal="closeImageModal2"
       @chooseUpdate="chooseUpdate2"
     ></uploader>
+
+    <!-- 图片上传3 -->
+    <uploader
+      :modalShow="uploadShow3"
+      @closemodal="closeImageModal3"
+      @chooseUpdate="chooseUpdate3"
+    ></uploader>
+
+    <!-- 图片上传4 -->
+    <uploader
+      :modalShow="uploadShow4"
+      @closemodal="closeImageModal4"
+      @chooseUpdate="chooseUpdate4"
+    ></uploader>
   </div>
 </template>
 
@@ -512,6 +613,8 @@ export default {
       apiUrlPrefix: "/api/sys/yl/project/",
       uploadShow1: false,
       uploadShow2: false,
+      uploadShow3: false,
+      uploadShow4: false,
       saleState: true,
       checkPoint: {
         x: null,
@@ -1059,6 +1162,24 @@ export default {
     },
     closeImageModal2(val) {
       this.uploadShow2 = val;
+    },
+
+    chooseUpdate3(arr) {
+      this.uploadShow3 = false;
+      this.formItem.tree_text =
+        arr[0].path.substr(0, 1) == "/" ? `${arr[0].path}` : `/${arr[0].path}`;
+    },
+    closeImageModal3(val) {
+      this.uploadShow3 = val;
+    },
+
+    chooseUpdate4(arr) {
+      this.uploadShow4 = false;
+      this.formItem.price_text =
+        arr[0].path.substr(0, 1) == "/" ? `${arr[0].path}` : `/${arr[0].path}`;
+    },
+    closeImageModal4(val) {
+      this.uploadShow4 = val;
     },
 
     // 地图功能

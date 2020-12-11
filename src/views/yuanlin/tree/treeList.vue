@@ -540,13 +540,14 @@ export default {
     // 图片选择
     chooseUpdate(arr) {
       this.uploadShow = false;
-      this.formItem.tree_pic = "/" + arr[0].path;
+      this.formItem.tree_pic =
+        arr[0].path.substr(0, 1) == "/" ? `${arr[0].path}` : `/${arr[0].path}`;
     },
     closeImageModal(val) {
       this.uploadShow = val;
     },
   },
-  
+
   mounted() {
     this.init();
   },
