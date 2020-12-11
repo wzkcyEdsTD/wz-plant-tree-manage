@@ -13,7 +13,7 @@
       >
     </Row>
     <br />
-    <!--表单-->
+    <!-- 表单 -->
     <Table
       ref="table"
       stripe
@@ -24,7 +24,7 @@
       @on-selection-change="dochange"
     ></Table>
     <br />
-    <!--分页-->
+    <!-- 分页 -->
     <div style="text-align: center">
       <Page
         :total="page.total"
@@ -43,7 +43,7 @@
       <p slot="header" style="text-align: center">
         <span>详情</span>
       </p>
-      <!--表单-->
+      <!-- 表单 -->
       <div>
         <Form :model="formItem" :label-width="80">
           <div
@@ -142,7 +142,6 @@ export default {
       apiUrlPrefix: "/api/sys/yl/maintain/",
       modal: {
         show: false,
-        isadd: true,
       },
       page: {
         pageSize: 10,
@@ -175,18 +174,20 @@ export default {
         },
         {
           title: "所属年度",
-          key: "year",
-          width: 100,
+          key: "year_num",
+          width: 120,
           align: "center",
         },
         {
           title: "所属项目",
           key: "project_name",
           width: 200,
+          align: "center",
         },
         {
           title: "记录添加单位",
           width: 200,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -200,7 +201,7 @@ export default {
         },
         {
           title: "种植/养护",
-          minWidth: 100,
+          minWidth: 120,
           align: "center",
           render: (h, params) => {
             return h(
@@ -228,7 +229,8 @@ export default {
         },
         {
           title: "记录添加时间",
-          width: 200,
+          width: 220,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -240,11 +242,12 @@ export default {
           title: "本次记录描述",
           key: "describe",
           minWidth: 200,
+          align: "center",
         },
         {
           title: "操作",
           fixed: "right",
-          minWidth: 150,
+          minWidth: 100,
           key: "action",
           align: "center",
           render: (h, params) => {
@@ -268,20 +271,19 @@ export default {
           },
         },
       ],
-      data1: [], //表格数据
-      tableSelect: [], //表格选中项
+      data1: [],
+      tableSelect: [],
       loading: true,
-      parkList: [],
     };
   },
   methods: {
-    //初始化
+    // 初始化
     init() {
       const self = this;
       self.loading = true;
       Util.ajax
         .post(this.apiUrlPrefix + "pclist", this.page)
-        .then(function (response) {
+        .then((response) => {
           self.loading = false;
           const data = response.data;
           self.data1 = data.datas;
@@ -290,35 +292,29 @@ export default {
           self.page.total = data.total;
         });
     },
-    toadd() {
-      this.clearFormItem();
-      this.modal.show = true;
-      this.modal.isadd = true;
-    },
-    //编辑
+
+    // 编辑
     check(params) {
       const self = this;
       const page = this.page;
       page.bean["project_num"] = params.row.project_num;
-      Util.ajax
-        .post(this.apiUrlPrefix + "list", page)
-        .then(function (response) {
-          if (response.data.code == "100") {
-            self.clearFormItem();
-            self.formItem = response.data.page;
-            self.modal.show = true;
-            self.modal.isadd = false;
-          } else {
-            alert(response.data.msg);
-          }
-        });
+      Util.ajax.post(this.apiUrlPrefix + "list", page).then((response) => {
+        if (response.data.code == "100") {
+          self.clearFormItem();
+          self.formItem = response.data.page;
+          self.modal.show = true;
+        } else {
+          alert(response.data.msg);
+        }
+      });
     },
-    //保存
+
+    // 保存
     update() {
       const self = this;
       Util.ajax
         .post(this.apiUrlPrefix + "update", this.formItem)
-        .then(function (response) {
+        .then((response) => {
           if (response.data.code == "100") {
             self.init();
             self.modal.show = false;
@@ -327,46 +323,13 @@ export default {
           }
         });
     },
-    delete(params) {
-      const self = this;
-      this.$Modal.confirm({
-        onOk() {
-          Util.ajax
-            .post(self.apiUrlPrefix + "delete", { id: params.row.id })
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-              }
-            });
-        },
-        content: "您确定要删除吗？",
-      });
-    },
-    batchDelete() {
-      const self = this;
-      this.$Modal.confirm({
-        onOk() {
-          var ids = "";
-          self.tableSelect.forEach(function (item) {
-            ids = ids + "," + item.id;
-          });
-          console.log(ids);
-          Util.ajax
-            .post(self.apiUrlPrefix + "delete", { id: ids.replace(",", "") })
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-              }
-            });
-        },
-        content: "您确定要删除选中项吗？",
-      });
-    },
-    //表格选中项
+
+    // 表格选中项
     dochange(selection) {
       this.tableSelect = selection;
     },
-    //分页
+
+    // 分页
     pageOnChange(num) {
       this.page.nowPage = num;
       this.init();
@@ -375,7 +338,8 @@ export default {
       this.page.pageSize = size;
       this.init();
     },
-    //清空
+
+    // 清空
     clearFormItem() {
       this.formItem = {
         mtc: {},
@@ -383,7 +347,8 @@ export default {
         parkfeature: this.page.bean.parkfeature,
       };
     },
-    //搜索重置
+
+    // 搜索重置
     searchInit() {
       this.page.nowPage = 1;
       this.init();

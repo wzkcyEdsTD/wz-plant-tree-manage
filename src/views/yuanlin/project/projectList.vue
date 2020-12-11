@@ -13,7 +13,7 @@
         ></span
       >
       <Button-group>
-        <i-button type="info" @click="toadd()">添加</i-button>
+        <i-button type="info" @click="toadd">添加</i-button>
       </Button-group>
     </Row>
     <br />
@@ -65,12 +65,12 @@
                 />
               </FormItem>
             </Col>
-            <Col :span="8">
+            <Col :span="6">
               <FormItem label="项目名称">
                 <span>{{ formItem.project_name }}</span>
               </FormItem>
             </Col>
-            <Col :span="8">
+            <Col :span="5">
               <FormItem label="项目状态">
                 <span>{{
                   formItem.state == "0"
@@ -87,17 +87,9 @@
                 }}</span>
               </FormItem>
             </Col>
-          </Row>
-          <Row>
-            <Col :span="24">
-              <FormItem label="项目介绍">
-                <!-- <span>{{
-                  formItem.description
-                    ? formItem.description.replace("↵", "")
-                    : "无"
-                }}</span> -->
-
-                <span v-html="formItem.text"></span>
+            <Col :span="5">
+              <FormItem label="养护周期">
+                <span>{{ formItem.maintenance_period }}</span>
               </FormItem>
             </Col>
           </Row>
@@ -245,6 +237,11 @@
               </FormItem>
             </Col>
           </Row>
+          <FormItem label="项目介绍">
+            <a :href="formItem.project_text" target="_blank">
+              <img :src="formItem.project_text" />
+            </a>
+          </FormItem>
         </Form>
       </div>
       <Row slot="footer">
@@ -274,7 +271,7 @@
           </Row>
           <FormItem label="项目封面">
             <Row>
-              <Col :span="18">
+              <Col :span="10">
                 <Input
                   v-model="formItem.project_cover"
                   placeholder="输入图片链接地址"
@@ -282,7 +279,7 @@
                   <Button
                     slot="append"
                     icon="upload"
-                    @click.native="uploadShow = true"
+                    @click.native="uploadShow1 = true"
                     >选择或上传</Button
                   >
                 </Input>
@@ -290,6 +287,33 @@
               <Col :span="6">
                 <img
                   :src="formItem.project_cover"
+                  style="
+                    max-width: 95%;
+                    max-height: 100px;
+                    background: transparent !important;
+                  "
+                />
+              </Col>
+            </Row>
+          </FormItem>
+          <FormItem label="项目简介">
+            <Row>
+              <Col :span="10">
+                <Input
+                  v-model="formItem.project_text"
+                  placeholder="输入图片链接地址"
+                >
+                  <Button
+                    slot="append"
+                    icon="upload"
+                    @click.native="uploadShow2 = true"
+                    >选择或上传</Button
+                  >
+                </Input>
+              </Col>
+              <Col :span="6">
+                <img
+                  :src="formItem.project_text"
                   style="
                     max-width: 95%;
                     max-height: 100px;
@@ -346,15 +370,15 @@
                 ></DatePicker>
               </FormItem>
             </Col>
+            <Col :span="8">
+              <FormItem label="养护周期">
+                <InputNumber
+                  v-model="maintenancePeriod"
+                  placeholder="请输入周期"
+                ></InputNumber>
+              </FormItem>
+            </Col>
           </Row>
-          <FormItem label="项目介绍">
-            <Input
-              type="textarea"
-              :rows="3"
-              v-model="formItem.description"
-              placeholder="请输入内容"
-            ></Input>
-          </FormItem>
           <Row>
             <Col :span="6">
               <FormItem label="备选树类型">
@@ -438,12 +462,6 @@
               </FormItem>
             </Col>
           </Row>
-          <FormItem label="内容">
-            <text-editor
-              v-model="formItem.text"
-              :content="formItem.text"
-            ></text-editor>
-          </FormItem>
         </Form>
       </div>
       <Row slot="footer">
@@ -462,11 +480,18 @@
         >
       </Row>
     </Modal>
-    <!-- 图片上传 -->
+    <!-- 图片上传1 -->
     <uploader
-      :modalShow="uploadShow"
-      @closemodal="closeImageModal"
-      @chooseUpdate="chooseUpdate"
+      :modalShow="uploadShow1"
+      @closemodal="closeImageModal1"
+      @chooseUpdate="chooseUpdate1"
+    ></uploader>
+
+    <!-- 图片上传2 -->
+    <uploader
+      :modalShow="uploadShow2"
+      @closemodal="closeImageModal2"
+      @chooseUpdate="chooseUpdate2"
     ></uploader>
   </div>
 </template>
@@ -474,22 +499,20 @@
 <script>
 import { loadModules } from "esri-loader";
 import Util from "@/libs/util";
-import TextEditor from "@/views/mylib/text-editor/text-editor.vue";
 import Uploader from "@/views/mylib/imageUpload/imageUpload.vue";
 const OPTION = {
   url:
     "https://lysb.lucheng.gov.cn/lc/libs/arcgis_js_v412_api/arcgis_js_api/library/4.12/dojo/dojo.js",
 };
 export default {
-  components: { TextEditor, Uploader },
+  components: { Uploader },
   data() {
     return {
       //接口前缀
       apiUrlPrefix: "/api/sys/yl/project/",
-      uploadShow: false,
+      uploadShow1: false,
+      uploadShow2: false,
       saleState: true,
-      map: null,
-      view: null,
       checkPoint: {
         x: null,
         y: null,
@@ -531,6 +554,7 @@ export default {
           title: "项目名称",
           key: "project_name",
           width: 120,
+          align: "center",
         },
         {
           title: "封面",
@@ -548,12 +572,14 @@ export default {
         {
           title: "业主单位",
           key: "proprietor",
-          width: 120,
+          width: 150,
+          align: "center",
         },
         {
           title: "联系电话",
           key: "phone",
-          width: 110,
+          width: 160,
+          align: "center",
         },
         {
           title: "养护周期",
@@ -563,7 +589,7 @@ export default {
         },
         {
           title: "认种认养量",
-          width: 100,
+          width: 150,
           align: "center",
           render: (h, params) => {
             return h(
@@ -577,6 +603,7 @@ export default {
         {
           title: "当前状态",
           width: 100,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -597,13 +624,15 @@ export default {
         {
           title: "累计筹款",
           width: 100,
+          align: "center",
           render: (h, params) => {
             return h("span", params.row.salesquantity || 0);
           },
         },
         {
           title: "公益牌状态",
-          width: 100,
+          width: 150,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -619,7 +648,8 @@ export default {
         },
         {
           title: "发布日期",
-          width: 120,
+          width: 150,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -631,7 +661,8 @@ export default {
         },
         {
           title: "筹款截止日期",
-          width: 120,
+          width: 150,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -643,7 +674,8 @@ export default {
         },
         {
           title: "养护截止时间",
-          width: 120,
+          width: 150,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -656,7 +688,7 @@ export default {
         {
           title: "操作",
           fixed: "right",
-          minWidth: 200,
+          minWidth: 180,
           key: "action",
           render: (h, params) => {
             return h("div", [
@@ -717,10 +749,10 @@ export default {
           },
         },
       ],
-      data1: [], //表格数据
-      tableSelect: [], //表格选中项
-      loading: true, //表格加载
-      parkList: [],
+      data1: [],
+      tableSelect: [],
+      loading: true,
+
       publishOptions: {
         disabledDate(date) {
           return date && date.valueOf() < Date.now() - 86400000;
@@ -737,28 +769,24 @@ export default {
       publishDate: "",
       fundingDeadlineDate: "",
       maintainDeadlineDate: "",
+      maintenancePeriod: 0,
     };
   },
   methods: {
-    //初始化
+    // 初始化
     init() {
       const self = this;
       self.loading = true;
-      Util.ajax
-        .post(this.apiUrlPrefix + "list", this.page)
-        .then(function (response) {
-          self.loading = false;
-          const data = response.data;
-          self.data1 = data.datas
-            ? data.datas.sort((a, b) => {
-                return a.id - b.id;
-              })
-            : [];
-          self.page.pageSize = data.pageSize;
-          self.page.nowPage = data.nowPage;
-          self.page.total = data.total;
-        });
+      Util.ajax.post(this.apiUrlPrefix + "list", this.page).then((response) => {
+        self.loading = false;
+        const data = response.data;
+        self.data1 = data.datas || [];
+        self.page.pageSize = data.pageSize;
+        self.page.nowPage = data.nowPage;
+        self.page.total = data.total;
+      });
     },
+
     toadd() {
       this.clearFormItem();
       this.initMap();
@@ -767,20 +795,12 @@ export default {
       this.modal.isadd = true;
     },
 
-    getRemain(data) {
-      if (data.length > 1) {
-        this.formItem.tree_type = [];
-        let i = String(data.length - 1);
-        this.formItem.tree_type = [data[i]];
-      }
-    },
-
     // 查看
     check(params) {
       const self = this;
       Util.ajax
         .post(this.apiUrlPrefix + "info/" + params.row.id)
-        .then(function (response) {
+        .then((response) => {
           if (response.data.code == "100") {
             self.clearFormItem();
             self.formItem = response.data.formItem;
@@ -850,7 +870,7 @@ export default {
 
           Util.ajax
             .post(self.apiUrlPrefix + "update", formItem)
-            .then(function (response) {
+            .then((response) => {
               if (response.data.code == "100") {
                 self.init();
                 self.modal.show = false;
@@ -865,12 +885,12 @@ export default {
       });
     },
 
-    //编辑
+    // 编辑
     edit(params) {
       const self = this;
       Util.ajax
         .post(this.apiUrlPrefix + "info/" + params.row.id)
-        .then(function (response) {
+        .then((response) => {
           if (response.data.code == "100") {
             self.clearFormItem();
             self.formItem = response.data.formItem;
@@ -892,6 +912,11 @@ export default {
               self.treeIdMap[self.formItem.tree_num] &&
               (self.checkTreeType =
                 self.treeIdMap[self.formItem.tree_num].type);
+
+            self.formItem.maintenance_period &&
+              (self.maintenancePeriod = Number(
+                self.formItem.maintenance_period
+              ));
 
             if (self.formItem.centerx && self.formItem.centery) {
               const numX = Number(self.formItem.centerx);
@@ -916,7 +941,7 @@ export default {
         });
     },
 
-    //保存
+    // 保存
     update({ type }) {
       const self = this;
 
@@ -934,16 +959,12 @@ export default {
           this.formItem["state"] = "0";
         }
 
-        if (!this.formItem.project_scale) {
-          this.formItem["project_scale"] = 1;
-        }
+        !this.formItem.project_scale && (this.formItem["project_scale"] = 1);
 
-        if (!this.formItem.max_purchase_count) {
-          this.formItem["max_purchase_count"] = 1;
-        }
+        !this.formItem.max_purchase_count &&
+          (this.formItem["max_purchase_count"] = 1);
 
         this.formItem["tree_num"] = this.checkTreeId;
-
         this.formItem["publish_date"] = Date.parse(new Date());
 
         this.fundingDeadlineDate &&
@@ -954,6 +975,11 @@ export default {
         this.maintainDeadlineDate &&
           (this.formItem["maintain_deadline"] = Date.parse(
             new Date(this.maintainDeadlineDate)
+          ));
+
+        this.maintenancePeriod &&
+          (this.formItem["maintenance_period"] = String(
+            this.maintenancePeriod
           ));
 
         // 删除不需要传的属性
@@ -979,7 +1005,7 @@ export default {
 
         Util.ajax
           .post(this.apiUrlPrefix + "update", this.formItem)
-          .then(function (response) {
+          .then((response) => {
             if (response.data.code == "100") {
               self.init();
               self.modal.show = false;
@@ -990,46 +1016,12 @@ export default {
       }
     },
 
-    delete(params) {
-      const self = this;
-      this.$Modal.confirm({
-        onOk() {
-          Util.ajax
-            .post(self.apiUrlPrefix + "delete", { id: params.row.id })
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-              }
-            });
-        },
-        content: "您确定要删除吗？",
-      });
-    },
-    batchDelete() {
-      const self = this;
-      this.$Modal.confirm({
-        onOk() {
-          var ids = "";
-          self.tableSelect.forEach(function (item) {
-            ids = ids + "," + item.id;
-          });
-          console.log(ids);
-          Util.ajax
-            .post(self.apiUrlPrefix + "delete", { id: ids.replace(",", "") })
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-              }
-            });
-        },
-        content: "您确定要删除选中项吗？",
-      });
-    },
-    //表格选中项
+    // 表格选中项
     dochange(selection) {
       this.tableSelect = selection;
     },
-    //分页
+
+    // 分页
     pageOnChange(num) {
       this.page.nowPage = num;
       this.init();
@@ -1038,22 +1030,35 @@ export default {
       this.page.pageSize = size;
       this.init();
     },
-    //清空
+
+    // 清空
     clearFormItem() {
       this.formItem = {};
     },
-    //搜索重置
+
+    // 搜索重置
     searchInit() {
       this.page.nowPage = 1;
       this.init();
     },
-    //图片选择
-    chooseUpdate(arr) {
-      this.uploadShow = false;
-      this.formItem.project_cover = "/" + arr[0].path;
+
+    // 图片选择
+    chooseUpdate1(arr) {
+      this.uploadShow1 = false;
+      this.formItem.project_cover =
+        arr[0].path.substr(0, 1) == "/" ? `${arr[0].path}` : `/${arr[0].path}`;
     },
-    closeImageModal(val) {
-      this.uploadShow = val;
+    closeImageModal1(val) {
+      this.uploadShow1 = val;
+    },
+
+    chooseUpdate2(arr) {
+      this.uploadShow2 = false;
+      this.formItem.project_text =
+        arr[0].path.substr(0, 1) == "/" ? `${arr[0].path}` : `/${arr[0].path}`;
+    },
+    closeImageModal2(val) {
+      this.uploadShow2 = val;
     },
 
     // 地图功能
@@ -1070,10 +1075,10 @@ export default {
           ],
           OPTION
         ).then(([Map, MapView, VectorTileLayer, GraphicsLayer, Graphic]) => {
-          self.map = new Map();
-          self.view = new MapView({
+          const map = new Map();
+          const view = new MapView({
             container: "arcgisMap",
-            map: self.map,
+            map: map,
             center: [120.6635, 27.9997],
             zoom: 13,
           });
@@ -1081,10 +1086,10 @@ export default {
             url:
               "https://services.wzmap.gov.cn/server/rest/services/Hosted/YL/VectorTileServer",
           });
-          self.map.add(layer);
+          map.add(layer);
 
           const graphicsLayer = new GraphicsLayer();
-          self.map.add(graphicsLayer);
+          map.add(graphicsLayer);
 
           const markerSymbol = {
             type: "simple-marker",
@@ -1098,7 +1103,7 @@ export default {
 
           // 编辑
           if (option && option.center) {
-            self.view.goTo({
+            view.goTo({
               center: option.center,
             });
             graphicsLayer.removeAll();
@@ -1116,7 +1121,7 @@ export default {
           }
 
           // 点击选点
-          self.view.on("click", (evt) => {
+          view.on("click", (evt) => {
             graphicsLayer.removeAll();
 
             self.checkPoint = {
@@ -1154,10 +1159,10 @@ export default {
           ],
           OPTION
         ).then(([Map, MapView, VectorTileLayer, GraphicsLayer, Graphic]) => {
-          self.map = new Map();
-          self.view = new MapView({
+          const map = new Map();
+          const view = new MapView({
             container: "arcgisMap2",
-            map: self.map,
+            map: map,
             center: [120.6635, 27.9997],
             zoom: 13,
           });
@@ -1165,10 +1170,10 @@ export default {
             url:
               "https://services.wzmap.gov.cn/server/rest/services/Hosted/YL/VectorTileServer",
           });
-          self.map.add(layer);
+          map.add(layer);
 
           const graphicsLayer = new GraphicsLayer();
-          self.map.add(graphicsLayer);
+          map.add(graphicsLayer);
 
           const markerSymbol = {
             type: "simple-marker",
@@ -1182,7 +1187,7 @@ export default {
 
           // 编辑
           if (option && option.center) {
-            self.view.goTo({
+            view.goTo({
               center: option.center,
             });
             graphicsLayer.removeAll();
@@ -1207,21 +1212,21 @@ export default {
       const self = this;
       Util.ajax.post("/api/sys/yl/tree/getAll").then((response) => {
         if (response.data) {
-          this.treeMap = {};
-          this.treeIdMap = {};
+          self.treeMap = {};
+          self.treeIdMap = {};
 
           const list = response.data;
           list.map((item) => {
-            !this.treeMap[item.tree_type] &&
-              (this.treeMap[item.tree_type] = []);
-            this.treeMap[item.tree_type].push({
+            !self.treeMap[item.tree_type] &&
+              (self.treeMap[item.tree_type] = []);
+            self.treeMap[item.tree_type].push({
               id: item.id,
               name: item.tree_name,
               value: item.tree_name,
               tree_price: item.tree_price,
             });
 
-            this.treeIdMap[item.id] = {
+            self.treeIdMap[item.id] = {
               id: item.id,
               name: item.tree_name,
               value: item.tree_name,
@@ -1230,22 +1235,24 @@ export default {
             };
           });
 
-          this.treeTypeList = [];
-          for (let k in this.treeMap) {
-            this.treeTypeList.push({
+          self.treeTypeList = [];
+          for (let k in self.treeMap) {
+            self.treeTypeList.push({
               value: k,
               name: k,
             });
           }
-          this.checkTreeType = this.treeTypeList[0].value;
+          self.checkTreeType = self.treeTypeList[0].value;
         }
       });
     },
   },
+
   mounted() {
     this.init();
     this.initTreeList();
   },
+
   watch: {
     publishDate(val) {
       if (val) {

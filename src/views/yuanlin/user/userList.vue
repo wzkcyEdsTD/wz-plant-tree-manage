@@ -13,7 +13,7 @@
       >
     </Row>
     <br />
-    <!--表单-->
+    <!-- 表单 -->
     <Table
       ref="table"
       stripe
@@ -24,7 +24,7 @@
       @on-selection-change="dochange"
     ></Table>
     <br />
-    <!--分页-->
+    <!-- 分页 -->
     <div style="text-align: center">
       <Page
         :total="page.total"
@@ -43,9 +43,9 @@
       <p slot="header" style="text-align: center">
         <span>详情</span>
       </p>
-      <!--表单-->
+      <!-- 表单 -->
       <div>
-        <Form :model="formItem" :label-width="80">
+        <Form :model="formItem" :label-width="110">
           <div style="border: solid 1px #dddee1">
             <div
               style="
@@ -57,22 +57,22 @@
               用户基本信息
             </div>
             <Row>
-              <Col :span="6">
+              <Col :span="8">
                 <FormItem label="OpenID">
                   <span>{{ formItem.openid }}</span>
                 </FormItem>
               </Col>
-              <Col :span="6">
+              <Col :span="5">
                 <FormItem label="国家">
                   <span>{{ formItem.country }}</span>
                 </FormItem>
               </Col>
-              <Col :span="6">
+              <Col :span="5">
                 <FormItem label="省份">
                   <span>{{ formItem.province }}</span>
                 </FormItem>
               </Col>
-              <Col :span="6">
+              <Col :span="5">
                 <FormItem label="城市">
                   <span>{{ formItem.city }}</span>
                 </FormItem>
@@ -124,33 +124,158 @@
             >
               用户认种认养相关信息
             </div>
-            <div v-if="formItem.pctreerankinginfo">
+            <div v-if="formItem.firstorder || formItem.statisticsinfo">
+              <div style="border-bottom: solid 1px #dddee1">
+                <span style="display: block; padding: 20px">首次认种认养</span>
+                <Row>
+                  <Col :span="6">
+                    <FormItem label="订单日期">
+                      <span>{{
+                        formItem.firstorder.payment_date
+                          ? new Date(formItem.firstorder.payment_date).Format(
+                              "yyyy-MM-dd"
+                            )
+                          : "无"
+                      }}</span>
+                    </FormItem>
+                  </Col>
+                  <Col :span="6">
+                    <FormItem label="区域">
+                      <span
+                        >{{ formItem.firstorder.project_name || "无" }}
+                      </span>
+                    </FormItem>
+                  </Col>
+                  <Col :span="6">
+                    <FormItem label="树种">
+                      <span>{{ formItem.firstorder.tree_name || "无" }}</span>
+                    </FormItem>
+                  </Col>
+                  <Col :span="6">
+                    <FormItem label="所属类型">
+                      <span>{{ formItem.firstorder.tree_type || "无" }} </span>
+                    </FormItem>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col :span="4">
+                    <FormItem label="种养类型">
+                      <span>认种</span>
+                    </FormItem>
+                  </Col>
+                  <Col :span="4">
+                    <FormItem label="数量">
+                      <span
+                        >{{ formItem.statisticsinfo.quantity || 0 }} 棵</span
+                      >
+                    </FormItem>
+                  </Col>
+                  <Col :span="4">
+                    <FormItem label="支付金额">
+                      <span>{{ formItem.statisticsinfo.amount || 0 }} 元</span>
+                    </FormItem>
+                  </Col>
+                  <Col :span="6">
+                    <FormItem label="种植起始日期">
+                      <span>{{
+                        formItem.firstorder.maintain_starttime
+                          ? new Date(
+                              formItem.firstorder.maintain_starttime
+                            ).Format("yyyy-MM-dd")
+                          : "无"
+                      }}</span>
+                    </FormItem>
+                  </Col>
+                  <Col :span="6">
+                    <FormItem label="种植到期日期">
+                      <span>{{
+                        formItem.firstorder.maintain_endtime
+                          ? new Date(
+                              formItem.firstorder.maintain_endtime
+                            ).Format("yyyy-MM-dd")
+                          : "无"
+                      }}</span>
+                    </FormItem>
+                  </Col>
+                </Row>
+                <FormItem label="认种寄语">
+                  <span>{{
+                    formItem.firstorder.correctd_wishes ||
+                    formItem.firstorder.wishes ||
+                    "无"
+                  }}</span>
+                </FormItem>
+              </div>
+              <span style="display: block; padding: 20px">累计认种认养</span>
               <Row>
                 <Col :span="6">
                   <FormItem label="下单量">
-                    <span>{{ formItem.pctreerankinginfo.ordercount }} 次</span>
+                    <span
+                      >{{ formItem.statisticsinfo.ordercount || 0 }} 次</span
+                    >
+                  </FormItem>
+                </Col>
+                <Col :span="6">
+                  <FormItem label="区域数">
+                    <span>{{ formItem.statisticsinfo.pjcount || 0 }} 块</span>
                   </FormItem>
                 </Col>
                 <Col :span="6">
                   <FormItem label="树木总量">
-                    <span>{{ formItem.pctreerankinginfo.treecount }} 棵</span>
-                  </FormItem>
-                </Col>
-                <Col :span="6">
-                  <FormItem label="养护次数">
                     <span
-                      >{{ formItem.pctreerankinginfo.treemaintain }} 次</span
+                      >{{ formItem.statisticsinfo.quantitycount || 0 }} 棵</span
                     >
                   </FormItem>
                 </Col>
                 <Col :span="6">
                   <FormItem label="支付总金额">
+                    <span>{{ formItem.statisticsinfo.amountsum || 0 }} 元</span>
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row>
+                <Col :span="6">
+                  <FormItem label="最近下单">
+                    <span>{{
+                      formItem.statisticsinfo.createtime
+                        ? new Date(formItem.statisticsinfo.createtime).Format(
+                            "yyyy-MM-dd"
+                          )
+                        : "无"
+                    }}</span>
+                  </FormItem>
+                </Col>
+                <Col :span="6">
+                  <FormItem label="最近认养起始">
+                    <span>{{
+                      formItem.statisticsinfo.maintain_starttime
+                        ? new Date(
+                            formItem.statisticsinfo.maintain_starttime
+                          ).Format("yyyy-MM-dd")
+                        : "无"
+                    }}</span>
+                  </FormItem>
+                </Col>
+                <Col :span="6">
+                  <FormItem label="最近认养结束">
+                    <span>{{
+                      formItem.statisticsinfo.maintain_endtime
+                        ? new Date(
+                            formItem.statisticsinfo.maintain_endtime
+                          ).Format("yyyy-MM-dd")
+                        : "无"
+                    }}</span>
+                  </FormItem>
+                </Col>
+                <Col :span="6">
+                  <FormItem label="未支付订单数">
                     <span
-                      >{{ formItem.pctreerankinginfo.amountsum || 0 }} 元</span
+                      >{{ formItem.statisticsinfo.unpaidcount || 0 }} 次</span
                     >
                   </FormItem>
                 </Col>
               </Row>
+              <div></div>
             </div>
             <div v-else>
               <span style="display: block; text-align: center; padding: 20px"
@@ -173,11 +298,10 @@ import Util from "@/libs/util";
 export default {
   data() {
     return {
-      //接口前缀
+      // 接口前缀
       apiUrlPrefix: "/api/sys/yl/user/",
       modal: {
         show: false,
-        isadd: true,
       },
       page: {
         pageSize: 10,
@@ -208,12 +332,14 @@ export default {
         {
           title: "OpenID",
           key: "openid",
-          width: 250,
+          width: 300,
+          align: "center",
         },
         {
           title: "昵称",
           key: "nickname",
           width: 200,
+          align: "center",
         },
         {
           title: "性别",
@@ -243,16 +369,19 @@ export default {
           title: "国家",
           key: "country",
           minWidth: 80,
+          align: "center",
         },
         {
           title: "省份",
           key: "province",
           minWidth: 80,
+          align: "center",
         },
         {
           title: "城市",
           key: "city",
           minWidth: 80,
+          align: "center",
         },
         {
           title: "状态",
@@ -297,7 +426,7 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.edit(params);
+                      this.check(params);
                     },
                   },
                 },
@@ -307,83 +436,51 @@ export default {
           },
         },
       ],
-      data1: [], //表格数据
-      tableSelect: [], //表格选中项
-      loading: true, //表格加载
+      data1: [],
+      tableSelect: [],
+      loading: true,
     };
   },
   methods: {
-    //初始化
+    // 初始化
     init() {
       const self = this;
       self.loading = true;
-      Util.ajax
-        .post(this.apiUrlPrefix + "list", this.page)
-        .then(function (response) {
-          self.loading = false;
-          const data = response.data;
-          self.data1 = data.datas;
-          self.page.pageSize = data.pageSize;
-          self.page.nowPage = data.nowPage;
-          self.page.total = data.total;
-        });
+      Util.ajax.post(this.apiUrlPrefix + "list", this.page).then((response) => {
+        self.loading = false;
+        const data = response.data;
+        self.data1 = data.datas;
+        self.page.pageSize = data.pageSize;
+        self.page.nowPage = data.nowPage;
+        self.page.total = data.total;
+      });
     },
-    toadd() {
-      this.clearFormItem();
-      this.modal.show = true;
-      this.modal.isadd = true;
-    },
-    //编辑
-    edit(params) {
+
+    // 编辑
+    check(params) {
       const self = this;
       Util.ajax
-        .post(this.apiUrlPrefix + "info/" + params.row.id)
-        .then(function (response) {
+        .post(this.apiUrlPrefix + "info?id=" + params.row.id)
+        .then((response) => {
           if (response.data.code == "100") {
             self.clearFormItem();
-            self.formItem = response.data.formItem;
-
-            const page = self.page;
-            page.bean["id"] = params.row.id;
-
-            Util.ajax
-              .post("/api/sys/yl/ranking/pctreerankinginfo", page)
-              .then(function (response) {
-                if (response.data.code == "100") {
-                  self.formItem["pctreerankinginfo"] = response.data.data;
-                  self.modal.show = true;
-                  self.modal.isadd = false;
-
-                  console.log(self.formItem);
-                } else {
-                  alert(response.data.msg);
-                }
-              });
-          } else {
-            alert(response.data.msg);
-          }
-        });
-    },
-    //保存
-    update() {
-      const self = this;
-      Util.ajax
-        .post(this.apiUrlPrefix + "update", this.formItem)
-        .then(function (response) {
-          if (response.data.code == "100") {
-            self.init();
-            self.modal.show = false;
+            self.formItem = response.data.data;
+            self.formItem["firstorder"] = response.data.firstorder;
+            self.formItem["statisticsinfo"] = response.data.statisticsinfo;
+            self.modal.show = true;
+            self.modal.isadd = false;
           } else {
             alert(response.data.msg);
           }
         });
     },
 
-    //表格选中项
+    // 表格选中项
     dochange(selection) {
       this.tableSelect = selection;
     },
-    //分页
+
+    // 分页
     pageOnChange(num) {
       this.page.nowPage = num;
       this.init();
@@ -392,7 +489,8 @@ export default {
       this.page.pageSize = size;
       this.init();
     },
-    //清空
+
+    // 清空
     clearFormItem() {
       this.formItem = {
         id: "",
@@ -400,13 +498,15 @@ export default {
         urlPattern: "",
       };
     },
-    //搜索重置
+
+    // 搜索重置
     searchInit() {
       this.page.nowPage = 1;
       this.init();
     },
   },
-  mounted: function () {
+
+  mounted() {
     this.init();
   },
 };

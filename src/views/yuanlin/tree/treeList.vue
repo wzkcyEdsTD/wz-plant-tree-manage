@@ -13,7 +13,7 @@
         ></span
       >
       <Button-group>
-        <i-button type="info" @click="toadd()">添加</i-button>
+        <i-button type="info" @click="toadd">添加</i-button>
       </Button-group>
     </Row>
     <br />
@@ -72,7 +72,7 @@
       <p slot="header" style="text-align: center">
         <span>详情</span>
       </p>
-      <!--表单-->
+      <!-- 表单 -->
       <div>
         <Form :model="formItem" :label-width="80">
           <Row>
@@ -193,9 +193,7 @@
         </Form>
       </div>
       <Row slot="footer">
-        <Button type="info" size="large" @click="update()"
-          >立即保存并添加</Button
-        >
+        <Button type="info" size="large" @click="update">立即保存并添加</Button>
         <Button type="ghost" size="large" @click="modal.show = false"
           >取消</Button
         >
@@ -211,12 +209,9 @@
 </template>
 <script>
 import Util from "@/libs/util";
-//import TextEditor from '@/views/mylib/text-editor/text-editor.vue';
 import Uploader from "@/views/mylib/imageUpload/imageUpload.vue";
 export default {
-  components: {
-    Uploader,
-  },
+  components: { Uploader },
   data() {
     return {
       //接口前缀
@@ -264,10 +259,12 @@ export default {
           title: "名称",
           key: "tree_name",
           width: 120,
+          align: "center",
         },
         {
           title: "状态",
-          width: 70,
+          width: 80,
+          align: "center",
           render: (h, params) => {
             return h("span", params.row.state == "1" ? "上架" : "下架");
           },
@@ -288,11 +285,13 @@ export default {
         {
           title: "树木类型",
           key: "tree_type",
-          width: 110,
+          width: 140,
+          align: "center",
         },
         {
           title: "树木简介",
-          width: 90,
+          width: 120,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -302,7 +301,6 @@ export default {
                   size: "small",
                 },
                 style: {
-                  marginRight: "10px",
                   color: "#304be4",
                   cursor: "pointer",
                 },
@@ -320,25 +318,30 @@ export default {
           title: "树苗价格",
           key: "sapling_price",
           width: 100,
+          align: "center",
         },
         {
           title: "年养护费",
           key: "tree_curing_price",
           width: 100,
+          align: "center",
         },
         {
           title: "种植费",
           key: "tree_plant_price",
           width: 100,
+          align: "center",
         },
         {
           title: "认种认养费用",
           key: "tree_price",
-          width: 120,
+          width: 150,
+          align: "center",
         },
         {
           title: "创建时间",
-          width: 180,
+          width: 200,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -350,7 +353,8 @@ export default {
         },
         {
           title: "修改时间",
-          width: 180,
+          width: 200,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -404,10 +408,9 @@ export default {
           },
         },
       ],
-      data1: [], //表格数据
-      tableSelect: [], //表格选中项
-      loading: true, //表格加载
-      parkList: [],
+      data1: [],
+      tableSelect: [],
+      loading: true,
     };
   },
   methods: {
@@ -415,34 +418,24 @@ export default {
     init() {
       const self = this;
       self.loading = true;
-      Util.ajax
-        .post(this.apiUrlPrefix + "list", this.page)
-        .then(function (response) {
-          self.loading = false;
-          const data = response.data;
-          self.data1 = data.datas
-            ? data.datas.sort((a, b) => {
-                return a.id - b.id;
-              })
-            : [];
-          self.page.pageSize = data.pageSize;
-          self.page.nowPage = data.nowPage;
-          self.page.total = data.total;
-        });
+      Util.ajax.post(this.apiUrlPrefix + "list", this.page).then((response) => {
+        self.loading = false;
+        const data = response.data;
+        self.data1 = data.datas
+          ? data.datas.sort((a, b) => {
+              return a.id - b.id;
+            })
+          : [];
+        self.page.pageSize = data.pageSize;
+        self.page.nowPage = data.nowPage;
+        self.page.total = data.total;
+      });
     },
+
     toadd() {
       this.clearFormItem();
       this.modal.show = true;
       this.modal.isadd = true;
-    },
-
-    getRemain(data) {
-      console.log("data", data);
-      if (data.length > 1) {
-        this.formItem.tree_type = [];
-        let i = String(data.length - 1);
-        this.formItem.tree_type = [data[i]];
-      }
     },
 
     // 查看
@@ -466,7 +459,7 @@ export default {
           }
           Util.ajax
             .post(self.apiUrlPrefix + "update", formItem)
-            .then(function (response) {
+            .then((response) => {
               if (response.data.code == "100") {
                 self.init();
                 self.modal.show = false;
@@ -484,7 +477,7 @@ export default {
       const self = this;
       Util.ajax
         .post(this.apiUrlPrefix + "info/" + params.row.id)
-        .then(function (response) {
+        .then((response) => {
           if (response.data.code == "100") {
             self.clearFormItem();
             self.formItem = response.data.formItem;
@@ -499,15 +492,12 @@ export default {
     //保存
     update() {
       const self = this;
-      if (!this.formItem.state) {
-        this.formItem["state"] = "1";
-      }
-
+      !this.formItem.state && (this.formItem["state"] = "1");
       this.formItem["tree_price"] = this.treePrice;
 
       Util.ajax
         .post(this.apiUrlPrefix + "update", this.formItem)
-        .then(function (response) {
+        .then((response) => {
           if (response.data.code == "100") {
             self.init();
             self.modal.show = false;
@@ -516,46 +506,13 @@ export default {
           }
         });
     },
-    delete(params) {
-      const self = this;
-      this.$Modal.confirm({
-        onOk() {
-          Util.ajax
-            .post(self.apiUrlPrefix + "delete", { id: params.row.id })
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-              }
-            });
-        },
-        content: "您确定要删除吗？",
-      });
-    },
-    batchDelete() {
-      const self = this;
-      this.$Modal.confirm({
-        onOk() {
-          var ids = "";
-          self.tableSelect.forEach(function (item) {
-            ids = ids + "," + item.id;
-          });
-          console.log(ids);
-          Util.ajax
-            .post(self.apiUrlPrefix + "delete", { id: ids.replace(",", "") })
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-              }
-            });
-        },
-        content: "您确定要删除选中项吗？",
-      });
-    },
-    //表格选中项
+
+    // 表格选中项
     dochange(selection) {
       this.tableSelect = selection;
     },
-    //分页
+
+    // 分页
     pageOnChange(num) {
       this.page.nowPage = num;
       this.init();
@@ -564,7 +521,8 @@ export default {
       this.page.pageSize = size;
       this.init();
     },
-    //清空
+
+    // 清空
     clearFormItem() {
       this.formItem = {
         sapling_price: 1,
@@ -572,12 +530,14 @@ export default {
         tree_curing_price: 1,
       };
     },
-    //搜索重置
+
+    // 搜索重置
     searchInit() {
       this.page.nowPage = 1;
       this.init();
     },
-    //图片选择
+
+    // 图片选择
     chooseUpdate(arr) {
       this.uploadShow = false;
       this.formItem.tree_pic = "/" + arr[0].path;
@@ -586,7 +546,8 @@ export default {
       this.uploadShow = val;
     },
   },
-  mounted: function () {
+  
+  mounted() {
     this.init();
   },
 

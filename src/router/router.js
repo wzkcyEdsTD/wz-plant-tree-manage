@@ -171,6 +171,32 @@ export const appRouter = [
 		}]
 	},
 
+	// 公益牌管理
+	{
+		path: '/nameplate',
+		icon: 'ios-paper',
+		title: '公益牌管理',
+		name: 'nameplate',
+		component: Main,
+		children: [{
+			path: 'nameplateState',
+			icon: 'image',
+			name: 'nameplateState',
+			title: '公益牌状态',
+			component: resolve => {
+				require(['@/views/yuanlin/nameplate/nameplateState.vue'], resolve);
+			}
+		}, {
+			path: 'nameplateList',
+			icon: 'image',
+			name: 'nameplateList',
+			title: '公益牌清单',
+			component: resolve => {
+				require(['@/views/yuanlin/nameplate/nameplateList.vue'], resolve);
+			}
+		}]
+	},
+
 	// 图片附件
 	{
 		path: '/attachment',

@@ -171,34 +171,17 @@
         >
       </Row>
     </Modal>
-    <!-- 图片上传 -->
-    <uploader
-      :modalShow="uploadShow"
-      @closemodal="closeImageModal"
-      @chooseUpdate="chooseUpdate"
-    ></uploader>
   </div>
 </template>
 <script>
 import Util from "@/libs/util";
-//import TextEditor from '@/views/mylib/text-editor/text-editor.vue';
-import Uploader from "@/views/mylib/imageUpload/imageUpload.vue";
 export default {
-  components: {
-    Uploader,
-  },
   data() {
     return {
-      //接口前缀
+      // 接口前缀
       apiUrlPrefix: "/api/sys/yl/order/",
-      uploadShow: false,
       modal: {
         show: false,
-        isadd: true,
-      },
-      describeModal: {
-        show: false,
-        content: "",
       },
       page: {
         pageSize: 10,
@@ -231,31 +214,37 @@ export default {
         {
           title: "订单编号",
           key: "order_num",
-          width: 250,
+          width: 320,
+          align: "center",
         },
         {
           title: "用户昵称",
           key: "registered_name",
           width: 150,
+          align: "center",
         },
         {
           title: "手机号",
           key: "phone",
           width: 150,
+          align: "center",
         },
         {
           title: "项目名称",
           key: "project_name",
           width: 200,
+          align: "center",
         },
         {
           title: "订单金额",
           key: "amount",
           width: 100,
+          align: "center",
         },
         {
           title: "订单状态",
           width: 100,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -272,6 +261,7 @@ export default {
         {
           title: "提交时间",
           width: 200,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -284,6 +274,7 @@ export default {
         {
           title: "现场种植",
           width: 100,
+          align: "center",
           render: (h, params) => {
             return h("span", params.row.attending_flg == "0" ? "是" : "否");
           },
@@ -291,6 +282,7 @@ export default {
         {
           title: "认种认养寄语",
           width: 250,
+          align: "center",
           render: (h, params) => {
             return h(
               "span",
@@ -301,7 +293,7 @@ export default {
         {
           title: "操作",
           fixed: "right",
-          minWidth: 150,
+          minWidth: 100,
           key: "action",
           render: (h, params) => {
             return h("div", [
@@ -312,39 +304,21 @@ export default {
                     type: "primary",
                     size: "small",
                   },
-                  style: {
-                    marginRight: "10px",
-                  },
                   on: {
                     click: () => {
-                      this.edit(params);
+                      this.check(params);
                     },
                   },
                 },
                 "查看"
               ),
-              h(
-                "Button",
-                {
-                  props: {
-                    type: "error",
-                    size: "small",
-                  },
-                  on: {
-                    click: () => {
-                      this.changeState(params);
-                    },
-                  },
-                },
-                "退款"
-              ),
             ]);
           },
         },
       ],
-      data1: [], //表格数据
-      tableSelect: [], //表格选中项
-      loading: true, //表格加载
+      data1: [],
+      tableSelect: [],
+      loading: true,
     };
   },
   methods: {
@@ -352,121 +326,38 @@ export default {
     init() {
       const self = this;
       self.loading = true;
-      Util.ajax
-        .post(this.apiUrlPrefix + "list", this.page)
-        .then(function (response) {
-          self.loading = false;
-          const data = response.data;
-          self.data1 = data.datas
-            ? data.datas.sort((a, b) => {
-                return a.id - b.id;
-              })
-            : [];
-          self.page.pageSize = data.pageSize;
-          self.page.nowPage = data.nowPage;
-          self.page.total = data.total;
-        });
-    },
-    toadd() {
-      this.clearFormItem();
-      this.modal.show = true;
-      this.modal.isadd = true;
-    },
-
-    getRemain(data) {
-      console.log("data", data);
-      if (data.length > 1) {
-        this.formItem.tree_type = [];
-        let i = String(data.length - 1);
-        this.formItem.tree_type = [data[i]];
-      }
-    },
-
-    // 查看
-    check(params) {
-      const self = this;
-      self.describeModal.show = true;
-      self.describeModal.content = params.row.tree_describe;
-    },
-
-    // 改变审核状态
-    changeState(params) {
-      const self = this;
-      const formItem = params.row;
-      this.$Modal.confirm({
-        onOk() {
-          Util.ajax
-            .post(self.apiUrlPrefix + "refund?outTradeNo=" + formItem.order_num)
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-                self.modal.show = false;
-              } else {
-                alert(response.data.msg);
-              }
-            });
-        },
-        content: `您确定要退款吗？`,
+      Util.ajax.post(this.apiUrlPrefix + "list", this.page).then((response) => {
+        self.loading = false;
+        const data = response.data;
+        self.data1 = data.datas || [];
+        self.page.pageSize = data.pageSize;
+        self.page.nowPage = data.nowPage;
+        self.page.total = data.total;
       });
     },
 
     //编辑
-    edit(params) {
+    check(params) {
       const self = this;
       Util.ajax
         .post(this.apiUrlPrefix + "info?id=" + params.row.id)
-        .then(function (response) {
+        .then((response) => {
           if (response.data.code == "100") {
             self.clearFormItem();
             self.formItem = response.data.formItem;
             self.modal.show = true;
-            self.modal.isadd = false;
           } else {
             alert(response.data.msg);
           }
         });
     },
 
-    delete(params) {
-      const self = this;
-      this.$Modal.confirm({
-        onOk() {
-          Util.ajax
-            .post(self.apiUrlPrefix + "delete", { id: params.row.id })
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-              }
-            });
-        },
-        content: "您确定要删除吗？",
-      });
-    },
-    batchDelete() {
-      const self = this;
-      this.$Modal.confirm({
-        onOk() {
-          var ids = "";
-          self.tableSelect.forEach(function (item) {
-            ids = ids + "," + item.id;
-          });
-          console.log(ids);
-          Util.ajax
-            .post(self.apiUrlPrefix + "delete", { id: ids.replace(",", "") })
-            .then(function (response) {
-              if (response.data.code == "100") {
-                self.init();
-              }
-            });
-        },
-        content: "您确定要删除选中项吗？",
-      });
-    },
-    //表格选中项
+    // 表格选中项
     dochange(selection) {
       this.tableSelect = selection;
     },
-    //分页
+
+    // 分页
     pageOnChange(num) {
       this.page.nowPage = num;
       this.init();
@@ -475,26 +366,16 @@ export default {
       this.page.pageSize = size;
       this.init();
     },
-    //清空
+
+    // 清空
     clearFormItem() {
-      this.formItem = {
-        status: 0,
-        // stateList,
-        // parkfeature: this.page.bean.parkfeature,
-      };
+      this.formItem = { status: 0 };
     },
-    //搜索重置
+
+    // 搜索重置
     searchInit() {
       this.page.nowPage = 1;
       this.init();
-    },
-    //图片选择
-    chooseUpdate(arr) {
-      this.uploadShow = false;
-      this.formItem.pic = "/" + arr[0].path;
-    },
-    closeImageModal(val) {
-      this.uploadShow = val;
     },
   },
   mounted() {
