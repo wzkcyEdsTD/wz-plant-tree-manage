@@ -153,6 +153,7 @@
                   v-model="formItem.sapling_price"
                   placeholder="请输入价格"
                 ></InputNumber>
+                元
               </FormItem>
             </Col>
             <Col :span="5">
@@ -161,6 +162,7 @@
                   v-model="formItem.tree_plant_price"
                   placeholder="请输入价格"
                 ></InputNumber>
+                元
               </FormItem>
             </Col>
             <Col :span="5">
@@ -169,17 +171,23 @@
                   v-model="formItem.tree_curing_price"
                   placeholder="请输入价格"
                 ></InputNumber>
+                元
+              </FormItem>
+            </Col>
+            <Col :span="5">
+              <FormItem label="养护年限">
+                <InputNumber
+                  v-model="treeYear"
+                  placeholder="请输入年限"
+                ></InputNumber>
+                年
               </FormItem>
             </Col>
           </Row>
           <Row>
-            <Col :span="5">
+            <Col :span="12">
               <FormItem label="认养费用">
-                <InputNumber
-                  v-model="treePrice"
-                  disabled
-                  placeholder="根据上述价格自动生成"
-                ></InputNumber>
+                <span> {{ treePrice }} 元（根据上述价格自动生成） </span>
               </FormItem>
             </Col>
           </Row>
@@ -411,6 +419,7 @@ export default {
       data1: [],
       tableSelect: [],
       loading: true,
+      treeYear: 2,
     };
   },
   methods: {
@@ -557,7 +566,7 @@ export default {
       return (
         this.formItem.sapling_price +
         this.formItem.tree_plant_price +
-        this.formItem.tree_curing_price * 2
+        this.formItem.tree_curing_price * this.treeYear
       );
     },
   },

@@ -64,17 +64,22 @@ module.exports = merge(webpackBaseConfig, {
         //代理
         proxy: {
             '/api/*': {
-                target: 'http://hcl.mynatapp.cc',
+                target: 'https://rzryht.go577.net',
                 changeOrigin: true,
                 secure: false
             },
             '/pubApi/*': {
-                target: 'http://hcl.mynatapp.cc',
+                target: 'https://rzryht.go577.net',
                 changeOrigin: true,
                 secure: false
             },
             '/upload/*': {
-                target: 'http://hcl.mynatapp.cc',
+                target: 'https://rzryht.go577.net',
+                changeOrigin: true,
+                secure: false
+            },
+            '/arcgis_js_v412_api/*': {
+                target: 'https://rzryht.go577.net',
                 changeOrigin: true,
                 secure: false
             }

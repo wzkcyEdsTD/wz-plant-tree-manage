@@ -368,19 +368,19 @@ export default {
         {
           title: "国家",
           key: "country",
-          minWidth: 80,
+          minWidth: 100,
           align: "center",
         },
         {
           title: "省份",
           key: "province",
-          minWidth: 80,
+          minWidth: 100,
           align: "center",
         },
         {
           title: "城市",
           key: "city",
-          minWidth: 80,
+          minWidth: 100,
           align: "center",
         },
         {

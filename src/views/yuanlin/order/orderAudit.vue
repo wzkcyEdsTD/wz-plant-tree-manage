@@ -149,7 +149,7 @@ export default {
         {
           title: "用户昵称",
           key: "registered_name",
-          width: 150,
+          width: 200,
           align: "center",
         },
         {
@@ -198,6 +198,21 @@ export default {
           },
         },
         {
+          title: "订单审核时间",
+          width: 200,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              params.row.wishes_update_time
+                ? new Date(params.row.wishes_update_time).Format(
+                    "yyyy-MM-dd hh:mm:ss"
+                  )
+                : ""
+            );
+          },
+        },
+        {
           title: "操作",
           fixed: "right",
           minWidth: 180,
@@ -210,6 +225,11 @@ export default {
                   props: {
                     type: "primary",
                     size: "small",
+                    disabled:
+                      params.row.wishes_status != 1 &&
+                      params.row.wishes_status != 3
+                        ? false
+                        : true,
                   },
                   style: {
                     marginRight: "10px",
@@ -284,7 +304,7 @@ export default {
     audit(auditState, params) {
       const self = this;
       if (auditState == params.row.wishes_status) {
-        if (auditState == 1) {
+        if (auditState == 1 || auditState == 3) {
           this.$Message.error("您已经审核通过该项！");
         } else {
           this.$Message.error("您已经驳回该项！");
@@ -293,15 +313,33 @@ export default {
       } else if (auditState == 1 && params.row.wishes_status == 3) {
         this.$Message.error("您已经审核通过该项！");
         return;
+      } else if (
+        params.row.wishes_status == 1 ||
+        params.row.wishes_status == 3
+      ) {
+        this.$Message.error("您已经审核通过该项！");
+        return;
+      }
+
+      let updateObj = {};
+
+      if (auditState == 1 || auditState == 3) {
+        updateObj = {
+          id: params.row.id,
+          wishes_status: auditState,
+          wishes_update_time: Date.parse(new Date()),
+        };
+      } else if (auditState == 2) {
+        updateObj = {
+          id: params.row.id,
+          wishes_status: auditState,
+        };
       }
 
       this.$Modal.confirm({
         onOk() {
           Util.ajax
-            .post(self.apiUrlPrefix + "update", {
-              id: params.row.id,
-              wishes_status: auditState,
-            })
+            .post(self.apiUrlPrefix + "update", updateObj)
             .then((response) => {
               if (response.data.code == "100") {
                 self.init();
@@ -346,6 +384,7 @@ export default {
                 id: self.formItem.id,
                 correctd_wishes: self.editWishes,
                 wishes_status: 3,
+                wishes_update_time: Date.parse(new Date()),
               })
               .then((response) => {
                 if (response.data.code == "100") {

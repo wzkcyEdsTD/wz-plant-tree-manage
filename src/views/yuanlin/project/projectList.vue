@@ -170,24 +170,35 @@
             </Col>
           </Row>
           <Row>
-            <Col :span="6">
-              <FormItem label="认养总数">
+            <Col :span="5">
+              <FormItem label="认种总数">
                 <span>{{ formItem.rzryzs || 0 }}</span>
               </FormItem>
             </Col>
-            <Col :span="6">
+            <Col :span="5">
               <FormItem label="已认种数">
                 <span>{{ formItem.yrzs || 0 }}</span>
               </FormItem>
             </Col>
-            <Col :span="6">
-              <FormItem label="最大认养数">
+            <Col :span="5">
+              <FormItem label="最大认种数">
                 <span>{{ formItem.zdrys || 0 }}</span>
               </FormItem>
             </Col>
-            <Col :span="6">
-              <FormItem label="认养用户数">
+            <Col :span="5">
+              <FormItem label="认种用户数">
                 <span>{{ formItem.yhzs || 0 }}</span>
+              </FormItem>
+            </Col>
+            <Col :span="4">
+              <FormItem label="类型">
+                <span>{{
+                  formItem.type == "1"
+                    ? "认种"
+                    : formItem.type == "2"
+                    ? "认养"
+                    : ""
+                }}</span>
               </FormItem>
             </Col>
           </Row>
@@ -226,11 +237,13 @@
             <Col :span="12">
               <FormItem label="公益牌状态">
                 <span>{{
-                  formItem.nameplate_state == "0"
-                    ? "未制作"
-                    : formItem.nameplate_state == "1"
-                    ? "已制作"
-                    : formItem.nameplate_state == "2"
+                  formItem.nameplate_state == 1
+                    ? "审核中"
+                    : formItem.nameplate_state == 2
+                    ? "制作中"
+                    : formItem.nameplate_state == 3
+                    ? "已挂牌"
+                    : formItem.nameplate_state == 4
                     ? "已解挂"
                     : "无"
                 }}</span>
@@ -272,6 +285,20 @@
                   <img :src="formItem.price_text" style="width: 100%" />
                 </a>
                 <span v-else>暂无明细</span>
+              </FormItem>
+            </Col>
+          </Row>
+          <Row>
+            <Col :span="8">
+              <FormItem label="项目立牌">
+                <a
+                  v-if="formItem.mappicture"
+                  :href="formItem.mappicture"
+                  target="_blank"
+                >
+                  <img :src="formItem.mappicture" style="width: 100%" />
+                </a>
+                <span v-else>暂无立牌</span>
               </FormItem>
             </Col>
           </Row>
@@ -348,6 +375,14 @@
                   v-model="publishDate"
                 ></DatePicker></FormItem
             ></Col>
+            <Col :span="8">
+              <FormItem label="类型">
+                <RadioGroup v-model="projectType">
+                  <Radio label="1">认种</Radio>
+                  <Radio label="2">认养</Radio>
+                </RadioGroup>
+              </FormItem></Col
+            >
           </Row>
           <Row>
             <Col :span="8">
@@ -549,6 +584,33 @@
               </Col>
             </Row>
           </FormItem>
+          <FormItem label="项目立牌">
+            <Row>
+              <Col :span="10">
+                <Input
+                  v-model="formItem.mappicture"
+                  placeholder="输入图片链接地址"
+                >
+                  <Button
+                    slot="append"
+                    icon="upload"
+                    @click.native="uploadShow5 = true"
+                    >选择或上传</Button
+                  >
+                </Input>
+              </Col>
+              <Col :span="6">
+                <img
+                  :src="formItem.mappicture"
+                  style="
+                    max-width: 95%;
+                    max-height: 100px;
+                    background: transparent !important;
+                  "
+                />
+              </Col>
+            </Row>
+          </FormItem>
         </Form>
       </div>
       <Row slot="footer">
@@ -594,6 +656,13 @@
       @closemodal="closeImageModal4"
       @chooseUpdate="chooseUpdate4"
     ></uploader>
+
+    <!-- 图片上传5 -->
+    <uploader
+      :modalShow="uploadShow5"
+      @closemodal="closeImageModal5"
+      @chooseUpdate="chooseUpdate5"
+    ></uploader>
   </div>
 </template>
 
@@ -602,8 +671,7 @@ import { loadModules } from "esri-loader";
 import Util from "@/libs/util";
 import Uploader from "@/views/mylib/imageUpload/imageUpload.vue";
 const OPTION = {
-  url:
-    "https://lysb.lucheng.gov.cn/lc/libs/arcgis_js_v412_api/arcgis_js_api/library/4.12/dojo/dojo.js",
+  url: "/arcgis_js_v412_api/arcgis_js_api/library/4.12/dojo/dojo.js",
 };
 export default {
   components: { Uploader },
@@ -615,7 +683,12 @@ export default {
       uploadShow2: false,
       uploadShow3: false,
       uploadShow4: false,
+      uploadShow5: false,
       saleState: true,
+      map1: null,
+      map2: null,
+      view1: null,
+      view2: null,
       checkPoint: {
         x: null,
         y: null,
@@ -656,7 +729,7 @@ export default {
         {
           title: "项目名称",
           key: "project_name",
-          width: 120,
+          width: 200,
           align: "center",
         },
         {
@@ -689,6 +762,21 @@ export default {
           key: "maintenance_period",
           width: 100,
           align: "center",
+        },
+        {
+          title: "类型",
+          width: 100,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              params.row.type == "1"
+                ? "认种"
+                : params.row.type == "2"
+                ? "认养"
+                : ""
+            );
+          },
         },
         {
           title: "认种认养量",
@@ -739,11 +827,13 @@ export default {
           render: (h, params) => {
             return h(
               "span",
-              params.row.nameplate_state == "0"
-                ? "未制作"
-                : params.row.nameplate_state == "1"
-                ? "已制作"
-                : params.row.nameplate_state == "2"
+              params.row.nameplate_state == 1
+                ? "审核中"
+                : params.row.nameplate_state == 2
+                ? "制作中"
+                : params.row.nameplate_state == 3
+                ? "已挂牌"
+                : params.row.nameplate_state == 4
                 ? "已解挂"
                 : "无"
             );
@@ -873,6 +963,8 @@ export default {
       fundingDeadlineDate: "",
       maintainDeadlineDate: "",
       maintenancePeriod: 0,
+
+      projectType: "",
     };
   },
   methods: {
@@ -910,6 +1002,7 @@ export default {
 
             self.fundingDeadlineDate = "";
             self.maintainDeadlineDate = "";
+            self.projectType = "";
 
             self.formItem.funding_deadline &&
               (self.fundingDeadlineDate = new Date(
@@ -920,6 +1013,9 @@ export default {
               (self.maintainDeadlineDate = new Date(
                 self.formItem.maintain_deadline
               ).Format("yyyy-MM-dd"));
+
+            self.formItem.type &&
+              (self.projectType = String(self.formItem.type));
 
             self.formItem.tree_num &&
               self.treeIdMap[self.formItem.tree_num] &&
@@ -1000,6 +1096,7 @@ export default {
 
             self.fundingDeadlineDate = "";
             self.maintainDeadlineDate = "";
+            self.projectType = "";
 
             self.formItem.funding_deadline &&
               (self.fundingDeadlineDate = new Date(
@@ -1010,6 +1107,9 @@ export default {
               (self.maintainDeadlineDate = new Date(
                 self.formItem.maintain_deadline
               ).Format("yyyy-MM-dd"));
+
+            self.formItem.type &&
+              (self.projectType = String(self.formItem.type));
 
             self.formItem.tree_num &&
               self.treeIdMap[self.formItem.tree_num] &&
@@ -1069,6 +1169,8 @@ export default {
 
         this.formItem["tree_num"] = this.checkTreeId;
         this.formItem["publish_date"] = Date.parse(new Date());
+
+        this.projectType && (this.formItem["type"] = Number(this.projectType));
 
         this.fundingDeadlineDate &&
           (this.formItem["funding_deadline"] = Date.parse(
@@ -1182,6 +1284,15 @@ export default {
       this.uploadShow4 = val;
     },
 
+    chooseUpdate5(arr) {
+      this.uploadShow5 = false;
+      this.formItem.mappicture =
+        arr[0].path.substr(0, 1) == "/" ? `${arr[0].path}` : `/${arr[0].path}`;
+    },
+    closeImageModal5(val) {
+      this.uploadShow5 = val;
+    },
+
     // 地图功能
     initMap(option) {
       const self = this;
@@ -1196,10 +1307,12 @@ export default {
           ],
           OPTION
         ).then(([Map, MapView, VectorTileLayer, GraphicsLayer, Graphic]) => {
-          const map = new Map();
-          const view = new MapView({
+          self.map1 = null;
+          self.view1 = null;
+          self.map1 = new Map();
+          self.view1 = new MapView({
             container: "arcgisMap",
-            map: map,
+            map: self.map1,
             center: [120.6635, 27.9997],
             zoom: 13,
           });
@@ -1207,10 +1320,10 @@ export default {
             url:
               "https://services.wzmap.gov.cn/server/rest/services/Hosted/YL/VectorTileServer",
           });
-          map.add(layer);
+          self.map1.add(layer);
 
           const graphicsLayer = new GraphicsLayer();
-          map.add(graphicsLayer);
+          self.map1.add(graphicsLayer);
 
           const markerSymbol = {
             type: "simple-marker",
@@ -1224,7 +1337,7 @@ export default {
 
           // 编辑
           if (option && option.center) {
-            view.goTo({
+            self.view1.goTo({
               center: option.center,
             });
             graphicsLayer.removeAll();
@@ -1242,7 +1355,7 @@ export default {
           }
 
           // 点击选点
-          view.on("click", (evt) => {
+          self.view1.on("click", (evt) => {
             graphicsLayer.removeAll();
 
             self.checkPoint = {
@@ -1280,10 +1393,12 @@ export default {
           ],
           OPTION
         ).then(([Map, MapView, VectorTileLayer, GraphicsLayer, Graphic]) => {
-          const map = new Map();
-          const view = new MapView({
+          self.map2 = null;
+          self.view2 = null;
+          self.map2 = new Map();
+          self.view2 = new MapView({
             container: "arcgisMap2",
-            map: map,
+            map: self.map2,
             center: [120.6635, 27.9997],
             zoom: 13,
           });
@@ -1291,10 +1406,10 @@ export default {
             url:
               "https://services.wzmap.gov.cn/server/rest/services/Hosted/YL/VectorTileServer",
           });
-          map.add(layer);
+          self.map2.add(layer);
 
           const graphicsLayer = new GraphicsLayer();
-          map.add(graphicsLayer);
+          self.map2.add(graphicsLayer);
 
           const markerSymbol = {
             type: "simple-marker",
@@ -1308,7 +1423,7 @@ export default {
 
           // 编辑
           if (option && option.center) {
-            view.goTo({
+            self.view2.goTo({
               center: option.center,
             });
             graphicsLayer.removeAll();

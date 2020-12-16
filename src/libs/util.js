@@ -7,7 +7,7 @@ import store from '../store';
 let util = {};
 
 util.title = function (title) {
-    title = title || '';
+    title = title || '城市数林公众服务平台后台管理';
     window.document.title = title;
 };
 

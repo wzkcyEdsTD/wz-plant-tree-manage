@@ -197,6 +197,24 @@ export const appRouter = [
 		}]
 	},
 
+	// 证书管理
+	{
+		path: '/cert',
+		icon: 'ios-paper',
+		title: '证书管理',
+		name: 'cert',
+		component: Main,
+		children: [{
+			path: 'certList',
+			icon: 'image',
+			name: 'certList',
+			title: '证书列表',
+			component: resolve => {
+				require(['@/views/yuanlin/cert/certList.vue'], resolve);
+			}
+		}]
+	},
+
 	// 图片附件
 	{
 		path: '/attachment',

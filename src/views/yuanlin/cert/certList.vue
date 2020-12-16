@@ -54,11 +54,7 @@
       <div>
         <Form :label-width="80">
           <div>
-            <img
-              v-if="nameplatePath"
-              :src="nameplatePath"
-              style="width: 100%"
-            />
+            <img v-if="certPath" :src="certPath" style="width: 100%" />
             <div v-else>
               <span style="display: block; text-align: center; padding: 20px"
                 >暂无相关信息</span
@@ -82,7 +78,7 @@ export default {
   data() {
     return {
       //接口前缀
-      apiUrlPrefix: "/api/sys/yl/nameplate/",
+      apiUrlPrefix: "/api/sys/yl/cert/",
       modal: {
         show: false,
       },
@@ -113,43 +109,48 @@ export default {
           },
         },
         {
-          title: "所属项目",
-          key: "project_name",
-          width: 250,
-          align: "center",
-        },
-        {
-          title: "树种编号",
-          key: "tree_num",
+          title: "所属年度",
+          key: "year_num",
           width: 200,
           align: "center",
         },
         {
-          title: "树种",
-          key: "tree_name",
-          width: 160,
+          title: "证书编号",
+          key: "certificate_num",
+          width: 250,
           align: "center",
         },
         {
-          title: "学名",
-          key: "tree_sci_name",
-          width: 180,
-          align: "center",
-        },
-        {
-          title: "认种认养人",
+          title: "证书持有人",
           key: "registered_name",
           width: 200,
           align: "center",
         },
         {
-          title: "认种认养寄语",
-          width: 350,
+          title: "证书类型",
+          width: 200,
           align: "center",
           render: (h, params) => {
             return h(
               "span",
-              params.row.correctd_wishes || params.row.wishes || "无"
+              params.row.certificate_type == "1"
+                ? "认种认养荣誉证书"
+                : params.row.certificate_type == "2"
+                ? "植树尽责证明"
+                : ""
+            );
+          },
+        },
+        {
+          title: "发证日期",
+          width: 250,
+          align: "center",
+          render: (h, params) => {
+            return h(
+              "span",
+              params.row.createtime
+                ? new Date(params.row.createtime).Format("yyyy-MM-dd")
+                : ""
             );
           },
         },
@@ -169,7 +170,7 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.edit(params);
+                      this.check(params);
                     },
                   },
                 },
@@ -182,7 +183,7 @@ export default {
       data1: [],
       tableSelect: [],
       loading: true,
-      nameplatePath: null,
+      certPath: null,
     };
   },
   methods: {
@@ -201,10 +202,10 @@ export default {
     },
 
     //编辑
-    edit(params) {
-      this.nameplatePath = null;
+    check(params) {
+      this.certPath = null;
       params.row.path &&
-        (this.nameplatePath =
+        (this.certPath =
           params.row.path.substr(0, 1) == "/"
             ? `${params.row.path}`
             : `/${params.row.path}`);
@@ -229,7 +230,7 @@ export default {
         onOk() {
           const ids = [];
           self.tableSelect.forEach((item) => {
-            ids.push(item.fileid);
+            ids.push(item.certificate_file_id);
           });
 
           Util.ajax

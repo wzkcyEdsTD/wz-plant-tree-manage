@@ -220,7 +220,7 @@ export default {
         {
           title: "用户昵称",
           key: "registered_name",
-          width: 150,
+          width: 200,
           align: "center",
         },
         {

@@ -266,7 +266,7 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.edit(params);
+                      this.check(params);
                     },
                   },
                 },
@@ -323,7 +323,7 @@ export default {
     },
 
     //编辑
-    edit(params) {
+    check(params) {
       const self = this;
       Util.ajax
         .post(self.apiUrlPrefix + "info/" + params.row.id)
