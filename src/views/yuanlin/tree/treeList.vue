@@ -177,7 +177,7 @@
             <Col :span="5">
               <FormItem label="养护年限">
                 <InputNumber
-                  v-model="treeYear"
+                  v-model="formItem.maintain_years"
                   placeholder="请输入年限"
                 ></InputNumber>
                 年
@@ -341,6 +341,12 @@ export default {
           align: "center",
         },
         {
+          title: "养护年限",
+          key: "maintain_years",
+          width: 100,
+          align: "center",
+        },
+        {
           title: "认种认养费用",
           key: "tree_price",
           width: 150,
@@ -419,7 +425,6 @@ export default {
       data1: [],
       tableSelect: [],
       loading: true,
-      treeYear: 2,
     };
   },
   methods: {
@@ -566,7 +571,7 @@ export default {
       return (
         this.formItem.sapling_price +
         this.formItem.tree_plant_price +
-        this.formItem.tree_curing_price * this.treeYear
+        this.formItem.tree_curing_price * (this.formItem.maintain_years || 1)
       );
     },
   },

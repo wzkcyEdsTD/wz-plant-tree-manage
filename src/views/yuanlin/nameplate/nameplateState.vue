@@ -253,7 +253,7 @@ export default {
         {
           title: "操作",
           fixed: "right",
-          minWidth: 100,
+          minWidth: 150,
           key: "action",
           render: (h, params) => {
             return h("div", [
@@ -264,6 +264,9 @@ export default {
                     type: "primary",
                     size: "small",
                   },
+                  style: {
+                    marginRight: "10px",
+                  },
                   on: {
                     click: () => {
                       this.check(params);
@@ -271,6 +274,21 @@ export default {
                   },
                 },
                 "编辑"
+              ),
+              h(
+                "Button",
+                {
+                  props: {
+                    type: "success",
+                    size: "small",
+                  },
+                  on: {
+                    click: () => {
+                      this.downLoad(params);
+                    },
+                  },
+                },
+                "下载"
               ),
             ]);
           },
@@ -397,6 +415,29 @@ export default {
     // 表格选中项
     dochange(selection) {
       this.tableSelect = selection;
+    },
+
+    // 下载
+    downLoad(params) {
+      const self = this;
+      this.$Modal.confirm({
+        onOk() {
+          Util.ajax
+            .post(
+              `/api/sys/yl/nameplate/GetNameplateZipByProjectNum?id=${params.row.id}`
+            )
+            .then((response) => {
+              if (response.data.code == "100") {
+                if (response.data.data) {
+                  window.open(response.data.data, "target", "");
+                } else {
+                  self.$Message.error("暂无可下载的公益牌！");
+                }
+              }
+            });
+        },
+        content: "您确定要下载该项目下的所有公益牌吗？",
+      });
     },
 
     // 分页

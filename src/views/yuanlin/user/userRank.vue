@@ -5,6 +5,7 @@
         v-model="page.key"
         placeholder="请输入关键字搜搜..."
         style="width: 200px"
+        @keyup.enter.native="searchInit"
       />
       <span style="margin: 0 10px"
         ><Button type="primary" icon="search" @click="searchInit"
