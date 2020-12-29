@@ -66,6 +66,11 @@
                 <span> {{ formItem.project_scale || 0 }} </span>
               </FormItem>
             </Col>
+            <Col :span="6">
+              <FormItem label="已审核数量">
+                <span> {{ formItem.nameplate_count || 0 }} </span>
+              </FormItem>
+            </Col>
           </Row>
           <Row>
             <Col :span="8">
@@ -207,6 +212,14 @@ export default {
           },
         },
         {
+          title: "已审核数量",
+          width: 150,
+          align: "center",
+          render: (h, params) => {
+            return h("span", params.row.nameplate_count || 0);
+          },
+        },
+        {
           title: "状态修改日期",
           width: 200,
           align: "center",
@@ -269,7 +282,7 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.check(params);
+                      this.edit(params);
                     },
                   },
                 },
@@ -340,8 +353,8 @@ export default {
       });
     },
 
-    //编辑
-    check(params) {
+    // 编辑
+    edit(params) {
       const self = this;
       Util.ajax
         .post(self.apiUrlPrefix + "info/" + params.row.id)
@@ -362,6 +375,8 @@ export default {
               (self.nameplateRemoveDate = new Date(
                 self.formItem.nameplate_remove_date
               ).Format("yyyy-MM-dd"));
+
+            self.formItem.nameplate_count = params.row.nameplate_count || 0;
 
             self.modal.show = true;
           } else {
